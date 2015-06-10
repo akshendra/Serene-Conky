@@ -2,41 +2,118 @@ require "cairo" -- cairo graphic library
 local cjson = require "cjson"
 
 
+
+-- this is the function used for printing single line of text
+-- @ text : the text to print
+-- @ x, y : the coordinated to print the text
+-- @ size : the size of font to use
+-- @ family : the font-family to use
+-- @ extents : the cairo text-extents object
+-- @ options : the table of options specifying everything that need to layout the text this include
+-- 			@ valign : the legal values are 0(for baseline which is the default), 1(for top) and 2(for center)
+-- 			@ halign : the legal values are 0(for left which is the default), 1(for right) and 2(for center)
+--			@ width : required in case of center and right halign
+--			@ height : required in case of center and top valign
+--			@ bold, italic : same as cairo_show_text
+-- # final_x, final_y : the position where the text was printed
+function lineText(text, x, y, size, family, extents, options)
+
+	-- if the options are not provided use the defalut
+	if options == nil then
+		options = {};
+		options.valign = 0;
+		options.halign = 0;
+		options.bold = 0;
+		options.italic = 0;
+	end
+
+	-- if bold in not given get default
+	if options.bold == nil then
+		options.bold = 0;
+	end
+
+	-- if italic is not passed use default
+	if options.italic == nil then
+		options.italic = 0;
+	end
+
+	-- set the font family and size of text
+	cairo_set_font_size(cr, size);
+	cairo_select_font_face(cr, family, options.bold, options.italic);
+
+	-- get the extents of the text
+	cairo_text_extents(cr, text, extents);
+
+	-- align the text horizontally
+	local final_x = x;
+	if options.halign == 0 then		-- for left align
+		final_x = x;
+	elseif options.halign == 1 then		-- for right align
+		final_x = x + options.width - extents.width;
+	elseif options.halign == 2 then		-- for center align
+		final_x = x + options.width/2 - extents.width/2;
+	end
+
+	-- vertically align the text
+	local final_y = y;
+	if options.valign == 0 then		-- for baseline
+		final_y = y;
+	elseif options.valign == 1 then		-- for top
+		final_y = y + extents.height;
+	elseif options.valign == 2 then		-- for center
+		final_y = y + extents.height/2 + options.height/2;
+	end
+
+	-- show the text finally
+	cairo_move_to(cr, final_x, final_y);
+	cairo_show_text(cr, text);
+
+	-- return the final printing position
+	return final_x, final_y;
+
+end
+
+
+
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
-function conky_setup(  )
+function conky_setup()
+
 	-- checking for internet connection
 	local file = io.popen("/sbin/route -n | grep -c '^0\.0\.0\.0'");
 	internet = tonumber(file:read("*a"));
 	io.close(file);
 
-	weather_icon = {};
-	weather_icon["01d"] = "/"; weather_icon["01n"] = "+";
-	weather_icon["02d"] = "R"; weather_icon["02n"] = "A";
-	weather_icon["03d"] = "a"; weather_icon["03n"] = "a";
-	weather_icon["04d"] = "1"; weather_icon["04n"] = "1";
-	weather_icon["09d"] = "b"; weather_icon["09n"] = "b";
-	weather_icon["10d"] = "h"; weather_icon["10n"] = "g";
-	weather_icon["11d"] = "G"; weather_icon["11n"] = "G";
-	weather_icon["13d"] = "N"; weather_icon["13n"] = "N";
-	weather_icon["50d"] = "k"; weather_icon["50n"] = "k";
-
+	-- global variables to hold the data
 	weather = "ERROR";
 	forecast = "ERROR";
-	update_weather = true;
-	start = true;
-	update_forecast = true;
-
 	quote = "ERROR";
+	update_weather = true;
+	update_forecast = true;
 	update_quote = true;
+
+	-- a global to tell if the script is running for the first time
+	start = true;
 
 end
 
 
+
+-- this function trims spaces from both side a string
+-- @ s : the string to trim
+-- # s : the trimed string
 function trim1(s)
   return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
-function lineMeter(cr, start_x, start_y, width, value, suffix)
+
+
+-- this function prints a progress bar style meter
+-- @ start_x, start_y : starting cordinate of the line
+-- @ width : width of the meter
+-- @ value : the percentage of meter to fill
+function lineMeter(start_x, start_y, width, value)
+
+	-- thin line
 	cairo_stroke(cr);
 	cairo_set_line_width(cr, 1);
 	cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 0.5);
@@ -44,38 +121,37 @@ function lineMeter(cr, start_x, start_y, width, value, suffix)
 	cairo_line_to(cr, start_x+width, start_y);
 	cairo_stroke(cr);
 
+	-- thick line
 	cairo_set_source_rgba(cr, 1, 1, 1,1);
 	cairo_move_to(cr, start_x, start_y);
 	cairo_line_to(cr, start_x+width*(value/100), start_y);
 	cairo_set_line_width(cr, 5);
 	cairo_stroke(cr);
-	-- cairo_fill(cr);
 
-	-- local extents = cairo_text_extents_t:create();
-	-- local text = "";
-	-- text = value..suffix;
-	-- cairo_set_font_size(cr, radius/2);
-	-- cairo_select_font_face(cr, "Poiret One", 0, 0);
-	-- cairo_text_extents(cr, text, extents);
-	-- cairo_move_to(cr, center_x-extents.width/2, center_y + extents.height/2);
-	-- cairo_show_text(cr, text);
 end
 
 
+-- this function prints a circular meter
+-- @ center_x, center_y : starting cordinate of the line
+-- @ radius : radius of the meter
+-- @ value : the percentage of meter to fill
+-- @ suffix : to be added to the value prited in the center if any
+function meter(center_x, center_y, radius, value, suffix)
 
-function meter(cr, center_x, center_y, radius, value, suffix)
+	-- this circle
 	cairo_stroke(cr);
 	cairo_set_line_width(cr, 1);
 	cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 0.5);
 	cairo_arc (cr, center_x, center_y, radius, 0, 2*math.pi);
 	cairo_stroke(cr);
 
+	-- thich cirlce
 	cairo_set_source_rgba(cr, 1, 1, 1,1);
 	cairo_arc (cr, center_x, center_y, radius-2, -math.pi/2, 2*math.pi*(value/100) -math.pi/2);
 	cairo_set_line_width(cr, 5);
 	cairo_stroke(cr);
-	-- cairo_fill(cr);
 
+	-- value in the center
 	local extents = cairo_text_extents_t:create();
 	local text = "";
 	text = value..suffix;
@@ -84,353 +160,9 @@ function meter(cr, center_x, center_y, radius, value, suffix)
 	cairo_text_extents(cr, text, extents);
 	cairo_move_to(cr, center_x-extents.width/2, center_y + extents.height/2);
 	cairo_show_text(cr, text);
-
-
 end
 
 
-function printWeather(cr)
-	local extents = cairo_text_extents_t:create();
-	local text = "";
-
-	text = weather["name"]..", "..weather["sys"]["country"];
-	-- print(text);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_set_font_size(cr, 36);
-	cairo_text_extents(cr, text, extents);
-	cairo_set_source_rgba(cr, 1, 1, 1, 1);
-	local start_x = 703;
-	local start_y = 20;
-
-
-	-- cairo_set_source_rgba(cr, 1,1,1,0.3);
-	-- cairo_rectangle(cr, start_x, 20, 610, 210);
-	-- cairo_fill(cr);
-
-	start_x = start_x + 25;
-	start_y = start_y + 15;
-	local current_x = start_x;
-	local current_y = start_y;
-
-
-	cairo_set_source_rgba(cr, 1,1,1,1);
-	cairo_move_to(cr, current_x, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height;
-	current_x = current_x + 10;
-	local move_x = current_x + extents.width;
-
-
-
-	-- print(weather["weather"][1]["icon"]);
-	local icon = weather_icon[weather["weather"][1]["icon"]];
-	cairo_set_font_size(cr, 54);
-	cairo_select_font_face(cr, "dripicons-weather", 0, 0);
-	cairo_text_extents(cr, icon, extents);
-	cairo_move_to(cr, current_x-10, current_y + 25 + extents.height);
-	cairo_show_text(cr, icon);
-	current_y = current_y + 15;
-	current_x = current_x + extents.width;
-	-- cairo_show_text(cr, 'abcdefghijklmnopqrstuvwxyz');
-	-- cairo_move_to(cr, 40, 450);
-	-- cairo_show_text(cr, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-	-- cairo_move_to(cr, 40, 500);
-	-- cairo_show_text(cr, '0123456789-=[];\,./');
-	-- cairo_move_to(cr, 40, 550);
-	-- cairo_show_text(cr, '_+{}:"|<>?')
-	-- cairo_move_to(cr, 40, 600);
-	-- cairo_show_text(cr, ')!@#$%^&*(')
-
-	local temp = tonumber(weather["main"]["temp"]) - 273;
-	temp = temp - temp%1;
-	text = temp.."°C";
-	cairo_set_font_size(cr, 34);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 10, current_y + 5 + extents.height);
-	cairo_show_text(cr, text);
-	current_y = current_y + 5 + extents.height;
-
-	text = weather["weather"][1]["description"]
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height + 16;
-
-	current_x = start_x;
-	value = tonumber(weather["main"]["temp_min"]) - 273;
-	value = value - value%1;
-	text = "min: "..value.."°C";
-	value = tonumber(weather["main"]["temp_max"]) - 273;
-	value = value - value%1;
-	text = text.."  max: "..value.."°C";
-
-	cairo_set_font_size(cr, 16);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height;
-
-	-- current_x = 703;
-	value = tonumber(weather["main"]["pressure"]);
-	value = value - value%1;
-	text = "pressure: "..value.."hpa";
-	cairo_set_font_size(cr, 16);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 3);
-	cairo_show_text(cr, text);
-	current_y = current_y + extents.height + 3;
-
-	value = tonumber(weather["main"]["humidity"]);
-	text = "humidity: "..value.."%";
-	cairo_set_font_size(cr, 16);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 3);
-	cairo_show_text(cr, text);
-
-
-	-- forecating
-	start_x = move_x + 50;
-	cairo_set_source_rgba(cr, 1, 1, 1, 0.3);
-	cairo_move_to(cr, start_x - 25, start_y);
-	cairo_line_to(cr, start_x - 25, start_y+180);
-	cairo_stroke(cr);
-	current_x = move_x + 50;
-	current_y = start_y + 15;
-	local day = tonumber(conky_parse('${time %d}'));
-	local month = conky_parse('${time %B}');
-
-	cairo_set_source_rgba(cr, 1, 1, 1, 1);
-	day = day + 1;
-	text = day..' '..month;
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 3);
-	cairo_show_text(cr, text);
-
-	current_x = current_x + 5;
-	current_y = current_y + 15;
-	local icon = weather_icon[forecast[2]["weather"][1]["icon"]];
-	cairo_set_font_size(cr, 40);
-	cairo_select_font_face(cr, "dripicons-weather", 0, 0);
-	cairo_text_extents(cr, icon, extents);
-	cairo_move_to(cr, current_x, current_y + 15 + extents.height);
-	cairo_show_text(cr, icon);
-	current_y = current_y + 10;
-	current_x = current_x + extents.width;
-
-	text = forecast[2]["weather"][1]["description"]
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height;
-	move_x = current_x + extents.width + 6;
-	-- current_x = start_x;
-	value = tonumber(forecast[2]["temp"]["min"]) - 273;
-	value = value - value%1;
-	text = value.."°C";
-	value = tonumber(forecast[2]["temp"]["max"]) - 273;
-	value = value - value%1;
-	text = text.." / "..value.."°C";
-	cairo_set_font_size(cr, 16);
-	-- cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 6);
-	cairo_show_text(cr, text);
-
-
-	day = day + 1;
-	text = day..' '..month;
-	current_x = move_x + 50;
-	current_y = start_y + 15;
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 3);
-	cairo_show_text(cr, text);
-
-	current_x = current_x + 5;
-	current_y = current_y + 15;
-	local icon = weather_icon[forecast[3]["weather"][1]["icon"]];
-	cairo_set_font_size(cr, 40);
-	cairo_select_font_face(cr, "dripicons-weather", 0, 0);
-	cairo_text_extents(cr, icon, extents);
-	cairo_move_to(cr, current_x, current_y + 15 + extents.height);
-	cairo_show_text(cr, icon);
-	current_y = current_y + 10;
-	current_x = current_x + extents.width;
-
-	text = forecast[3]["weather"][1]["description"]
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height;
-
-	-- current_x = start_x;
-	value = tonumber(forecast[3]["temp"]["min"]) - 273;
-	value = value - value%1;
-	text = value.."°C";
-	value = tonumber(forecast[3]["temp"]["max"]) - 273;
-	value = value - value%1;
-	text = text.." / "..value.."°C";
-
-	cairo_set_font_size(cr, 16);
-	-- cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 6);
-	cairo_show_text(cr, text);
-	local move_y = current_y + extents.height + 6;
-
-
-	day = day + 1;
-	text = day..' '..month;
-	current_x = start_x;
-	current_y = move_y + 20;
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 3);
-	cairo_show_text(cr, text);
-
-	current_x = current_x + 5;
-	current_y = current_y + 15;
-	local icon = weather_icon[forecast[4]["weather"][1]["icon"]];
-	cairo_set_font_size(cr, 40);
-	cairo_select_font_face(cr, "dripicons-weather", 0, 0);
-	cairo_text_extents(cr, icon, extents);
-	cairo_move_to(cr, current_x, current_y + 15 + extents.height);
-	cairo_show_text(cr, icon);
-	current_y = current_y + 10;
-	current_x = current_x + extents.width;
-
-	text = forecast[4]["weather"][1]["description"]
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height;
-
-	-- current_x = start_x;
-	value = tonumber(forecast[4]["temp"]["min"]) - 273;
-	value = value - value%1;
-	text = value.."°C";
-	value = tonumber(forecast[4]["temp"]["max"]) - 273;
-	value = value - value%1;
-	text = text.." / "..value.."°C";
-
-	cairo_set_font_size(cr, 16);
-	-- cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 6);
-	cairo_show_text(cr, text);
-
-
-
-	day = day + 1;
-	text = day..' '..month;
-	current_x = move_x + 50;
-	current_y = move_y + 20;
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 3);
-	cairo_show_text(cr, text);
-
-	current_x = current_x + 5;
-	current_y = current_y + 15;
-	local icon = weather_icon[forecast[5]["weather"][1]["icon"]];
-	cairo_set_font_size(cr, 40);
-	cairo_select_font_face(cr, "dripicons-weather", 0, 0);
-	cairo_text_extents(cr, icon, extents);
-	cairo_move_to(cr, current_x, current_y + 25 + extents.height);
-	cairo_show_text(cr, icon);
-	current_y = current_y + 10;
-	current_x = current_x + extents.width+10;
-
-	text = forecast[5]["weather"][1]["description"]
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height);
-	cairo_show_text(cr, text);
-
-	current_y = current_y + extents.height;
-
-	-- current_x = start_x;
-	value = tonumber(forecast[5]["temp"]["min"]) - 273;
-	value = value - value%1;
-	text = value.."°C";
-	value = tonumber(forecast[5]["temp"]["max"]) - 273;
-	value = value - value%1;
-	text = text.." / "..value.."°C";
-
-	cairo_set_font_size(cr, 16);
-	-- cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 6, current_y + extents.height + 6);
-	cairo_show_text(cr, text);
-	local move_y = current_y + extents.height + 6;
-
-
-end
-
-
-function printQuote(cr)
-
-	local extents = cairo_text_extents_t:create();
-	local text = "";
-
-	-- cairo_set_source_rgba(cr, 0,0,0,0.25);
-	-- cairo_rectangle(cr, 53, 250, 1260, 100);
-	-- cairo_fill(cr);
-
-	cairo_set_source_rgba(cr, 1, 1, 1, 0.3);
-	cairo_move_to(cr, 53, 250);
-	cairo_line_to(cr, 1333, 250);
-	cairo_stroke(cr);
-	cairo_move_to(cr, 53, 350);
-	cairo_line_to(cr, 1333, 350);
-	cairo_stroke(cr);
-
-	cairo_set_source_rgba(cr, 1,1,1,1);
-	text = quote['contents']['quote'];
-	-- print(text);
-
-	cairo_set_font_size(cr, 24);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, 33 + 650 - extents.width/2, 260 + extents.height + 6);
-	cairo_show_text(cr, text);
-
-	local move_y = 260 + extents.height + 6;
-	local move_x = 33 + 650 + extents.width/2
-	text = quote['contents']['author'];
-	-- print(text);
-
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, move_x - extents.width,  move_y + extents.height + 10);
-	cairo_show_text(cr, text);
-
-end
 
 function conky_main(  )
 
@@ -447,22 +179,52 @@ function conky_main(  )
 	cr = cairo_create(cs);
 	local cj = cjson.new();
 
-	-- for position text
+	-- for positioning text
 	local extents = cairo_text_extents_t:create();
 	local text = "";
+
+
 	-- for finding out the internet connection
 	local file = io.popen("/sbin/route -n | grep -c '^0\.0\.0\.0'");
 	internet = tonumber(file:read("*a"));
 	io.close(file);
 
+	-- options for printing text
+	local options = {};
+	options.valign = 0;
+	options.halign = 0;
+	options.width = 0;
+	options.height = 0;
+	options.bold = 0;
+	options.italic = 0;
 
-	-- for text extents
-	-- local content = cjson.decode('{"id": "1"}');
-	-- for k, v in pairs(content) do
- -- 		print(k, content[k])
-	-- end
+	-- scaling varible
+	local scale = 1;
 
-	-- date and time
+	-- variables for layout
+	local total_width = conky_window.width*(scale) - conky_window.width/20;
+	local  total_height = conky_window.height*(scale) - conky_window.height/20;
+	local box_width = total_width;
+	local box_height = total_height;
+
+	-- variables positioning
+	local start_x = conky_window.width/40;
+	local  start_y = 0;
+	local x = start_x;
+	local y  = start_y;
+
+
+
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- DATE TIME
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	start_x = conky_window.width/40;
+	start_y = 0;
+	box_width = total_width/2;
+	box_height = total_height/2.8;
+	cairo_set_source_rgba(cr, 1,1,1,1);
+
+	-- date and time variables
 	local hour = conky_parse('${time %I}');
 	local minute = conky_parse('${time %M}');
 	local second = conky_parse('${time %S}');
@@ -471,423 +233,258 @@ function conky_main(  )
 	local month = conky_parse('${time %B}');
 	local year = conky_parse('${time %G}');
 
+	-- clock
+	options.halign = 2;
+	options.width = box_width;
+	x, y = lineText(hour..":"..minute.." "..part, start_x, start_y + box_height/2, box_height/3, "Text Me One", extents, options);
+
+	-- date
+	options.halign = 0;
+	options.valign = 1;
+	lineText(month.." "..day..", "..year, x + box_width/50, start_y + box_height/2 + box_height/25, box_height/7, "Poiret One", extents, options);
 
 
 
-	-- grids
-	-- cairo_move_to(cr,33,0);
-	-- cairo_line_to(cr, 33, 700);
-	-- cairo_line_to(cr, 1333, 700);
-	-- cairo_line_to(cr, 1333, 0);
-	-- cairo_line_to(cr, 33, 0);
-	-- cairo_move_to(cr, 683, 0);
-	-- cairo_line_to(cr, 683, 700);
-	-- cairo_move_to(cr, 33, 250);
-	-- cairo_line_to(cr, 1333, 250);
-	-- cairo_move_to(cr, 33, 350);
-	-- cairo_line_to(cr, 1333, 350);
-	-- cairo_stroke(cr);
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- CPU
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	-- cairo_set_source_rgba(cr, 1,1,1,0.3);
-	-- cairo_rectangle(cr, 53, 20, 610, 210);
-	-- cairo_fill(cr);
-
-	-- Diplomata,Leckerli One,Limelight,Modak,Sacramento
+	start_x = conky_window.width/40;
+	start_y = total_height*(0.55);
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
 	cairo_set_source_rgba(cr, 1,1,1,1);
-	cairo_select_font_face(cr, "Text Me One", 0 , 0);
-	cairo_set_font_size(cr, 96);
-	text = hour..":"..minute.." "..part;
-	cairo_text_extents(cr, text, extents)
-	local current_y = 80 + extents.height/2;
-	local current_x = 33 + 325 - extents.width/2;
-	cairo_move_to(cr, 33 + 325 - extents.width/2, 125);
-	cairo_show_text(cr, text);
 
+	-- usage meter
+	meter(start_x + box_width - box_width/20 - box_height/8 , start_y + box_height/20 + box_height/8, box_height/8, tonumber(conky_parse("${cpu}")), '%');
 
-	-- cairo_set_source_rgba(cr, 0.9, 0.9, , 1);
-	cairo_set_font_size(cr, 48);
-	-- Poiret One, Nixie One
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	text = month.." "..day..", "..year;
-	cairo_text_extents(cr, text, extents)
-	cairo_move_to(cr, current_x, 125 + 36 + extents.height/2);
-	cairo_show_text(cr, text);
+	-- heading
+	options.valign = 1;
+	options.halign = 0;
+	x, y = lineText("CPU", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
 
-
-	minute = tonumber(minute);
-	hour = tonumber(hour);
-	second = tonumber(second);
-
-	if( minute % 30 == 29) then
-		update_weather = true;
-	end
-
-	if((update_weather and minute%30 == 0) or start == true) then
-		update_weather = false;
-
-		if(tonumber(internet) == 1) then
-			local file = io.popen("curl -m 100  api.openweathermap.org/data/2.5/weather?id=1270454");
-			output = file:read("*a");
-			io.close(file);
-		end
-
-		if internet ~= 1 then
-			weather = "NO INTERNET";
-		end
-
-		if (output == "") then
-				print("Could not read");
-				weather = "ERROR";
-		else
-			weather = cjson.decode(output);
-			for k, v in pairs(weather) do
-	 			print(k, weather[k])
-			end
-		end
-	end
-
-
-
-	-- forecaster
-	if( minute % 60 == 59) then
-		update_forecast = true;
-	end
-
-	if((update_forecast and minute%60 == 0) or start == true) then
-		update_forecast = false;
-		-- start = false;
-		if(tonumber(internet) == 1) then
-			local file = io.popen("curl -m 100 'api.openweathermap.org/data/2.5/forecast/daily?id=1270454&mode=json'");
-			output = file:read("*a");
-			io.close(file);
-		end
-
-		if internet ~= 1 then
-			forecast = "NO INTERNET";
-		end
-
-		if (output == "") then
-				print("Could not read");
-				forecast = "ERROR";
-		else
-			forecast = cjson.decode(output)["list"];
-			for k, v in pairs(forecast) do
-	 			print(k, forecast[k])
-			end
-		end
-	end
-
-	if weather ~= "NO INTERNET" and weather ~= "ERROR" then
-		printWeather(cr);
-	end
-
-
-	-- quoter
-	if( minute % 60 == 59) then
-		update_quote = true;
-	end
-
-	if((update_quote and minute%60 == 0) or start == true) then
-		update_quote = false;
-		start = false;
-		if(tonumber(internet) == 1) then
-			local file = io.popen("curl -m 100 http://api.theysaidso.com/qod");
-			output = file:read("*a");
-			io.close(file);
-		end
-
-		if internet ~= 1 then
-			quote = "NO INTERNET";
-		end
-
-		if (output == "") then
-				print("Could not read");
-				quote = "ERROR";
-		else
-			quote = cjson.decode(output);
-			for k, v in pairs(quote) do
-	 			print(k, quote[k])
-			end
-		end
-	end
-
-	printQuote(cr);
-
-
-	local start_x = 53;
-	local start_y = 370;
-
-	-- cairo_set_source_rgba(cr, 0,0,0,1);
-	-- cairo_rectangle(cr, start_x, start_y, 285, 310);
-	-- cairo_fill(cr);
-
-	local cpu = tonumber(conky_parse("${cpu}"));
-	meter(cr, start_x + 285 - 65, start_y + 15 + 45, 45, cpu, '%');
-
-	text = "CPU";
-	cairo_set_font_size(cr, 40);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	-- text = month.." "..day..", "..year;
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, start_y + 20 + extents.height);
-	cairo_show_text(cr, text);
-	current_y = start_y + 25 + extents.height;
-	current_x = start_x+25;
-
+	-- cores percentage usage
 	local no_of_cores = 2;
-	cairo_set_font_size(cr, 18);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
 	for i = 1,no_of_cores do
 		local name = "core "..i;
-		local value = conky_parse("${top cpu "..i.."}");
-		text = name..":"..value.."%";
-		cairo_text_extents(cr, text, extents);
-		cairo_move_to(cr, current_x, current_y + extents.height + 5);
-		cairo_show_text(cr, text);
-		current_y = current_y + extents.height + 5;
+		local value = trim1(conky_parse("${top cpu "..i.."}"));
+		x, y = lineText(name..": "..value.."%", start_x + box_width/14, y + box_height/50, box_height/20, "Text Me One", extents, options);
 	end
 
-
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,15);
+	-- top ten processes
+	y = y + box_height/18;
 	for i = 1,10 do
-		local addison = "                 ";
-		local name = string.sub(conky_parse("${top name "..i.."}")..addison,1,10);
-		local value = conky_parse("${top cpu "..i.."}");
-		text = name;
-		cairo_text_extents(cr, text, extents);
-		cairo_move_to(cr, current_x, current_y + 25 + 17*i);
-		cairo_show_text(cr,text);
-		text = value.."%";
-		cairo_text_extents(cr, text, extents);
-		cairo_move_to(cr, start_x + 285- 35 - extents.width, current_y + 25 + 17*i);
-		cairo_show_text(cr,text);
+		options.halign = 0;
+		options.valign = 0;
+		_, _ = lineText(trim1(conky_parse("${top name "..i.."}")), start_x + box_width/20, y + box_height/22 + box_height/120, box_height/24, 'Nixie One', extents, options);
+		options.halign = 1;
+		options.width = box_width - box_width/18;
+		x, y = lineText(trim1(conky_parse("${top cpu "..i.."}")).."%", start_x, y + box_height/22 + box_height/120, box_height/24, 'Nixie One', extents, options);
 	end
 
 
 
-	start_x = start_x + 285 + 40;
-	-- cairo_set_source_rgba(cr, 1,1,1,0.3);
-	-- cairo_rectangle(cr, start_x, start_y, 285, 310);
-	-- cairo_fill(cr);
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- Network
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+	start_x = conky_window.width/40 + total_width*(0.26);
+	start_y = total_height*(0.55);
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
 	cairo_set_source_rgba(cr, 1,1,1,1);
-	text = "Network";
-	cairo_select_font_face(cr,"Poiret One",0,0);
-	cairo_set_font_size(cr,36);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, start_y + 20 + extents.height);
-	cairo_show_text(cr,text);
-	current_y = start_y + 20 + extents.height;
 
-	local download = conky_parse("${downspeed eth0}");
-	text = "download: ";
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,16);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	text = trim1(download).."/s";
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	current_y = current_y+extents.height + 5;
+	-- heading
+	options.valign = 1;
+	options.halign = 0;
+	x, y = lineText("Network", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
 
-	local upload = conky_parse("${upspeed eth0}");
-	text = "upload: ";
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,16);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	text = trim1(download).."/s";
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+12);
-	cairo_show_text(cr,text);
-	current_y = current_y+extents.height + 5;
+	-- values
+	y = y + box_height/120;
+	-- download speed
+	options.halign = 0;
+	options.valign = 0;
+	_, _ = lineText('download:', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+	local download = trim1(conky_parse("${downspeed eth0}"));
+	options.halign = 1;
+	options.width = box_width - box_width/18;
+	x, y = lineText(download.."/s", start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
 
-
-	current_y = current_y + 50;
-
-
-	text = "Filesystem";
-	cairo_select_font_face(cr,"Poiret One",0,0);
-	cairo_set_font_size(cr,36);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y + extents.height);
-	cairo_show_text(cr,text);
-	current_y = current_y + extents.height + 5;
-
-
-	text = "/";
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,16);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	local used = conky_parse("${fs_used /}");
-	local total = conky_parse("${fs_size /}");
-	text = trim1(used).."/"..trim1(total);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	current_y = current_y+extents.height + 20;
-	local value = conky_parse("${fs_used_perc /}");
-	lineMeter(cr, start_x+20, current_y, 245, value, "%");
-
-	current_y = current_y+10;
-
-	text = "/home";
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,16);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	local used = conky_parse("${fs_used /home}");
-	local total = conky_parse("${fs_size /home}");
-	text = trim1(used).."/"..trim1(total);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	current_y = current_y+extents.height + 20;
-	local value = conky_parse("${fs_used_perc /home}");
-	lineMeter(cr, start_x+20, current_y, 245, value, "%");
+	-- upload speed
+	options.halign = 0;
+	options.valign = 0;
+	_, _ = lineText('upload:', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+	local download = trim1(conky_parse("${upspeed eth0}"));
+	options.halign = 1;
+	options.width = box_width - box_width/18;
+	x, y = lineText(download.."/s", start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
 
 
 
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- File System
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	start_x = start_x + 285 + 40;
-	-- cairo_set_source_rgba(cr, 1,1,1,0.3);
-	-- cairo_rectangle(cr, start_x, start_y, 285, 310);
-	-- cairo_fill(cr);
-
+	start_x = conky_window.width/40 + total_width*(0.26);
+	start_y = y + box_height/15;
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
 	cairo_set_source_rgba(cr, 1,1,1,1);
-	text = "Power";
-	cairo_select_font_face(cr,"Poiret One",0,0);
-	cairo_set_font_size(cr,36);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, start_y + 20 + extents.height);
-	cairo_show_text(cr,text);
-	current_y = start_y + 20 + extents.height;
 
+	-- heading
+	options.valign = 1;
+	options.halign = 0;
+	x, y = lineText("Filesystem", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
 
-	local bat = conky_parse("${battery}");
-	-- print(bat);
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
+	-- root filesystem
+	y = y + box_height/40;
+	options.halign = 0;
+	options.valign = 0;
+	_, _ = lineText('/', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+	local used = trim1(conky_parse("${fs_used /}"));
+	local total = trim1(conky_parse("${fs_size /}"));
+	options.halign = 1;
+	options.width = box_width - box_width/18;
+	x, y = lineText(trim1(used).."/"..trim1(total), start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
 
-	text = trim1(bat);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x + 285 - 20 - extents.width, current_y + extents.height);
-	cairo_show_text(cr, text);
-	current_y = current_y + extents.height + 15;
-	value = tonumber(conky_parse("${battery_percent}"));
-	lineMeter(cr, start_x+20, current_y, 245, value, '%');
+	-- root meter
+	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /}")));
 
+	-- root filesystem
+	y = y + box_height/20;
+	options.halign = 0;
+	options.valign = 0;
+	_, _ = lineText('/home', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+	local used = trim1(conky_parse("${fs_used /home}"));
+	local total = trim1(conky_parse("${fs_size /home}"));
+	options.halign = 1;
+	options.width = box_width - box_width/18;
+	x, y = lineText(trim1(used).."/"..trim1(total), start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
 
-	current_y = current_y + 20;
-
-
-	text = "Disk";
-	cairo_select_font_face(cr,"Poiret One",0,0);
-	cairo_set_font_size(cr,36);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y + 20 + extents.height);
-	cairo_show_text(cr,text);
-	current_y = current_y + 20 + extents.height;
-
-	local write = conky_parse("${diskio_write}");
-	text = "write: ";
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,16);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	text = trim1(write).."/s";
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	current_y = current_y+extents.height + 5;
-
-	local read = conky_parse("${diskio_read}");
-	text = "read: ";
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,16);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
-	cairo_show_text(cr,text);
-	text = trim1(read).."/s";
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+12);
-	cairo_show_text(cr,text);
-	current_y = current_y+extents.height + 20;
-
-
-	text = "Uptime";
-	cairo_select_font_face(cr,"Poiret One",0,0);
-	cairo_set_font_size(cr,36);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+20, current_y + 20 + extents.height);
-	cairo_show_text(cr,text);
-	current_y = current_y + 20 + extents.height;
-	local uptime = conky_parse("${uptime}");
-	-- print(bat);
-	cairo_set_font_size(cr, 20);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-
-	text = trim1(uptime);
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x + 285 - 20 - extents.width, current_y + extents.height);
-	cairo_show_text(cr, text);
+	-- root meter
+	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /home}")));
 
 
 
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- Power
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	-- RAM
-	start_x = start_x + 285 + 40;
-	-- cairo_set_source_rgba(cr, 1,1,1,0.3);
-	-- cairo_rectangle(cr, start_x, start_y, 285, 310);
-	-- cairo_fill(cr);
+	start_x = conky_window.width/40 + total_width*(0.52);
+	start_y = total_height*(0.55);
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
+	cairo_set_source_rgba(cr, 1,1,1,1);
 
+	-- heading
+	options.valign = 1;
+	options.halign = 0;
+	x, y = lineText("Power", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
 
-	local ram = conky_parse("${memperc}");
-	meter(cr, start_x + 65, start_y + 15 + 45, 45, ram, '%');
+	-- battery status
+	options.halign = 1;
+	options.valign = 0;
+	options.width = box_width - box_width/18;
+	x, y = lineText(trim1(conky_parse("${battery}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, options);
 
-	text = "Memory";
-	cairo_set_font_size(cr, 40);
-	cairo_select_font_face(cr, "Poiret One", 0, 0);
-	-- text = month.." "..day..", "..year;
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, start_x+ 285 - 20 - extents.width, start_y + 20 + extents.height);
-	cairo_show_text(cr, text);
-	current_y = start_y + 25 + extents.height;
-	current_x = start_x+25;
-
-	cairo_set_font_size(cr, 18);
-	cairo_select_font_face(cr, "Text Me One", 0, 0);
-
-	local swap = conky_parse("${swapperc}");
-	text = "swap: "..value.."%";
-	cairo_text_extents(cr, text, extents);
-	cairo_move_to(cr, current_x + 285 - 60 - extents.width, current_y + extents.height + 5);
-	cairo_show_text(cr, text);
-	current_y = current_y + extents.height + 5;
+	-- battery meter
+	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${battery_percent}")));
 
 
-	cairo_select_font_face(cr,"Nixie One",0,0);
-	cairo_set_font_size(cr,15);
+
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- Disk
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+	start_x = conky_window.width/40 + total_width*(0.52);
+	start_y = y + box_height/15;
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
+	cairo_set_source_rgba(cr, 1,1,1,1);
+
+	-- heading
+	options.valign = 1;
+	options.halign = 0;
+	x, y = lineText("Disk", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
+
+	-- values
+	y = y + box_height/120;
+	-- write speed
+	options.halign = 0;
+	options.valign = 0;
+	_, _ = lineText('write:', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+	options.halign = 1;
+	options.width = box_width - box_width/18;
+	x, y = lineText(trim1(conky_parse("${diskio_write}"))..'/s', start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+
+	-- read speed
+	options.halign = 0;
+	options.valign = 0;
+	_, _ = lineText('read:', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+	local download = trim1(conky_parse("${diskio_read}"));
+	options.halign = 1;
+	options.width = box_width - box_width/18;
+	x, y = lineText(trim1(conky_parse("${diskio_read}"))..'/s', start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options);
+
+
+
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- Uptime
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+	start_x = conky_window.width/40 + total_width*(0.52);
+	start_y = y + box_height/36;
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
+	cairo_set_source_rgba(cr, 1,1,1,1);
+
+	-- heading
+	options.valign = 1;
+	options.halign = 0;
+	x, y = lineText("Uptime", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
+
+	-- uptime value
+	options.halign = 1;
+	options.valign = 0;
+	options.width = box_width - box_width/18;
+	x, y = lineText(trim1(conky_parse("${uptime}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, options);
+
+
+
+	--<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	-- Memory
+	-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+	start_x = conky_window.width/40 + total_width*(0.78);
+	start_y = total_height*(0.55);
+	box_width = total_width*(0.22);
+	box_height = total_height*(0.45);
+	cairo_set_source_rgba(cr, 1,1,1,1);
+
+	-- usage meter
+	meter(start_x + box_width/20 + box_height/8 , start_y + box_height/20 + box_height/8, box_height/8, tonumber(conky_parse("${memperc}")), '%');
+
+	-- heading
+	options.valign = 1;
+	options.halign = 1;
+	options.width = box_width - box_height/20;
+	x, y = lineText("Memory", start_x, start_y + box_height/15, box_height/10, "Poiret One", extents, options);
+
+	-- swap percent usage
+	local name = "swap ";
+	local value = trim1(conky_parse("${swapperc}"));
+	options.width = box_width - box_width/15;
+	x, y = lineText(name..": "..value.."%", start_x, y + box_height/50, box_height/20, "Text Me One", extents, options);
+
+	-- top ten processes
+	y = y + box_height/18 + box_height/20;
 	for i = 1,10 do
-		local addison = "                 ";
-			local name = string.sub(conky_parse("${top_mem name "..i.."}")..addison,1,10);
-			local value = (conky_parse("${top_mem mem_res "..i.."}"));
-		text = name;
-		cairo_text_extents(cr, text, extents);
-		cairo_move_to(cr, current_x, current_y + 25 + 17*i);
-		cairo_show_text(cr,text);
-		text = value;
-		cairo_text_extents(cr, text, extents);
-		cairo_move_to(cr, start_x + 285- 20 - extents.width, current_y + 25 + 17*i);
-		cairo_show_text(cr,text);
+		options.halign = 0;
+		options.valign = 0;
+		_, _ = lineText(trim1(conky_parse("${top_mem name "..i.."}")), start_x + box_width/20, y + box_height/22 + box_height/120, box_height/24, 'Nixie One', extents, options);
+		options.halign = 1;
+		options.width = box_width - box_width/18;
+		x, y = lineText(trim1(conky_parse("${top_mem mem_res "..i.."}")), start_x, y + box_height/22 + box_height/120, box_height/24, 'Nixie One', extents, options);
 	end
 
 
