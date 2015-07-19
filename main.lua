@@ -700,7 +700,7 @@ function conky_main(  )
 	cairo_text_extents(cr, text, extents);
 	cairo_move_to(cr, start_x+20, current_y+extents.height+10);
 	cairo_show_text(cr,text);
-	text = trim1(download).."/s";
+	text = trim1(upload).."/s";
 	cairo_text_extents(cr, text, extents);
 	cairo_move_to(cr, start_x+285-20-extents.width, current_y+extents.height+12);
 	cairo_show_text(cr,text);
