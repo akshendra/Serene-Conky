@@ -84,8 +84,9 @@ use_spacer right
 text_buffer_size 2048
 
 # -- Lua load -- #
-lua_load main.lua
+lua_load quote.lua
 lua_draw_hook_pre main
 lua_startup_hook setup
 
 TEXT
+${execi 100 Scripts/quote.py}
