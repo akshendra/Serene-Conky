@@ -1,27 +1,27 @@
-6_minTemp:23.67
+6_minTemp:23.66
 1_minTempAt:15:30
 2_maxTempAt:01:30
-feel:25
-update_at:2015-07-30 06:13:55
-7_maxTemp:28.49
+feel:24
+update_at:2015-07-30 07:29:30
+7_maxTemp:28.48
 3_maxTemp:31.49
 8_icon:rain
 4_summary:Mostly cloudy starting in the evening.
 6_maxTempAt:02:30
-8_maxTemp:25.43
+8_maxTemp:25.42
 summary:Clear
 7_minTempAt:17:30
 6_maxTemp:30.67
-8_minTemp:18.94
-1_minTemp:23.73
+8_minTemp:18.96
+1_minTemp:24.18
 6_icon:rain
-temperature:25
-5_minTemp:23.46
+temperature:24
+5_minTemp:23.51
 8_summary:Light rain starting in the afternoon.
 6_minTempAt:16:30
 forecast_summery:Light rain throughout the week, with temperatures falling to 25°C on Thursday.
 8_maxTempAt:06:30
-5_icon:rain
+5_icon:wind
 4_maxTemp:30.98
 3_minTempAt:14:30
 1_icon:rain
@@ -30,30 +30,30 @@ forecast_summery:Light rain throughout the week, with temperatures falling to 25
 3_maxTempAt:01:30
 7_summary:Mostly cloudy starting in the evening.
 1_summary:Rain throughout the day.
-2_maxTemp:31.66
+2_maxTemp:31.65
 5_maxTempAt:02:30
 3_summary:Light rain starting in the evening.
 3_minTemp:22.11
-wind:9.3
+wind:8.61
 4_icon:partly-cloudy-night
 7_icon:partly-cloudy-night
 speed_unit:km/h
 4_maxTempAt:02:30
 5_minTempAt:16:30
 icon:clear-night
-5_summary:Drizzle and breezy starting in the evening.
+5_summary:Mostly cloudy in the morning and breezy starting in the evening.
 3_icon:rain
 4_minTemp:20.53
 7_maxTempAt:04:30
 temp_unit:C
-2_minTemp:21.95
-5_maxTemp:31.14
-humidity:0.79
-1_maxTemp:30.72
+2_minTemp:22.04
+5_maxTemp:31.16
+humidity:0.8
+1_maxTemp:30.89
 4_minTempAt:14:30
 status:FILLED
 2_minTempAt:15:30
-7_minTemp:18.39
+7_minTemp:18.41
 2_icon:clear-day
 2_summary:Clear throughout the day.
 8_minTempAt:16:30
