@@ -485,7 +485,8 @@ function conky_main(  )
 	end
 
 	-- destroying the cairo surface
-	cairo_destroy(cr)
-	cairo_surface_destroy(cs)
-	cr=nil
+	cairo_destroy(cr);
+	cairo_surface_destroy(cs);
+	cr=nil;
+
 end
