@@ -204,15 +204,15 @@ end
 
 
 -- reads the weather from Downloads/weather.txt
-function readQuote()
+function readFact()
     -- read the weather file
-    print('Reading the quote:')
-    quote_file = lines_from('Downloads/quote.cml')
+    print('Reading the fact:')
+    fact_file = lines_from('Downloads/fact.cml')
     -- print the line
-    for index, line in pairs(quote_file) do
+    for index, line in pairs(fact_file) do
         _,_,key, value = line:find('([%a%d_]+):(.+)')
         print(key..value)
-        quote[key] = value
+        fact[key] = value
     end
 end
 
@@ -221,11 +221,11 @@ end
 function conky_setup()
 
     -- global variables to hold the data
-    quote = {}
-    quote['status'] = 'EMPTY'
+    fact = {}
+    fact['status'] = 'EMPTY'
 
     -- a global to tell if the script is running for the first time
-    start_quote = true
+    start_fact = true
 
 end
 
@@ -256,25 +256,25 @@ function conky_main(  )
     local second = tonumber(conky_parse('${time %S}'))
 
     -- if the weather is to be update this time
-    local update_quote = false
+    local update_fact = false
 
     -- update the weather every nine minutes
     if (hour * 3600 + minute * 60 + second) % 555  <= 3 then
-        update_quote = true
+        update_fact = true
     end
 
     -- if this the first time
-    if start_quote then
-        update_quote = true
-        start_quote = false
+    if start_fact then
+        update_fact = true
+        start_fact = false
     end
 
 
     print('Time since last update (update at 555): ' .. (hour * 3600 + minute * 60 + second) % 555)
 
     -- read the weather
-    if update_quote then
-        readQuote()
+    if update_fact then
+        readFact()
     end
 
     -- options for printing text
@@ -301,32 +301,24 @@ function conky_main(  )
     local x = start_x
     local y  = start_y
 
-    -- lets print the quotes
+    -- lets print the facts
     start_y = conky_window.height/2.8;
-    box_width = total_width
+    box_width = total_width/2
     box_height = total_height/6
     cairo_set_source_rgba(cr, 1,1,1,1)
     y = start_y
+    start_x = box_width
 
     -- cairo_rectangle(cr, start_x, start_y, box_width, box_height)
     -- cairo_stroke(cr)
 
-    print('Quote data status: ' .. quote['status'])
-
+    print('Fact data status: ' .. fact['status'])
 
     -- if the status is FILLED that means we have the data
-    if quote['status'] == 'FILLED' then
-      -- decide which quote to print
-      local which_quote = (minute*60 + second)/720
-      which_quote = which_quote - which_quote%1 + 1
-      -- print the quote
-      options.halign = 2
-      _, y, _ = multiText(quote[which_quote..'_quote'], start_x + box_width*(0.02) , y + box_height*(0.1), box_width*(0.46), box_height, box_height*(0.15), 'Text Me One', extents, font_ext, options);
-      -- print the author name
-      options.halign = 1
-      options.width = box_width*(0.46)
-      x, y = lineText(quote[which_quote..'_author'], start_x + box_width*(0.02) , y + box_height*(0.05), box_height*(0.15), 'Roboto Light', extents, font_ext, options)
-
+    if fact['status'] == 'FILLED' then
+      -- print the fact
+      options.halign = 0
+      _, y, _ = multiText(fact['fact'], start_x + box_width*(0.1) , y + box_height*(0.1), box_width*(0.90), box_height, box_height*(0.14), 'Text Me One', extents, font_ext, options);
     end
 
 

@@ -1,59 +1,59 @@
-6_minTemp:22.05
-1_minTempAt:14:30
-2_maxTempAt:23:30
-feel:23
-update_at:2015-07-29 09:08:06
-7_maxTemp:28.89
-3_maxTemp:31.46
+6_minTemp:23.67
+1_minTempAt:15:30
+2_maxTempAt:01:30
+feel:25
+update_at:2015-07-30 06:13:55
+7_maxTemp:28.49
+3_maxTemp:31.49
 8_icon:rain
-4_summary:Light rain overnight.
+4_summary:Mostly cloudy starting in the evening.
 6_maxTempAt:02:30
-8_maxTemp:31.69
+8_maxTemp:25.43
 summary:Clear
-7_minTempAt:16:30
-6_maxTemp:28.78
-8_minTemp:22.26
-1_minTemp:23.69
+7_minTempAt:17:30
+6_maxTemp:30.67
+8_minTemp:18.94
+1_minTemp:23.73
 6_icon:rain
-temperature:23
-5_minTemp:22.12
-8_summary:Light rain in the morning and overnight.
-6_minTempAt:15:30
-forecast_summery:Light rain throughout the week, with temperatures falling to 29°C on Monday.
-8_maxTempAt:02:30
-5_icon:partly-cloudy-night
-4_maxTemp:31.11
+temperature:25
+5_minTemp:23.46
+8_summary:Light rain starting in the afternoon.
+6_minTempAt:16:30
+forecast_summery:Light rain throughout the week, with temperatures falling to 25°C on Thursday.
+8_maxTempAt:06:30
+5_icon:rain
+4_maxTemp:30.98
 3_minTempAt:14:30
 1_icon:rain
-6_summary:Light rain throughout the day.
+6_summary:Light rain in the morning and afternoon.
 1_maxTempAt:23:30
 3_maxTempAt:01:30
-7_summary:Partly cloudy in the morning.
-1_summary:Light rain overnight.
-2_maxTemp:30.88
-5_maxTempAt:03:30
-3_summary:Clear throughout the day.
-3_minTemp:21.97
-wind:5.29
-4_icon:rain
+7_summary:Mostly cloudy starting in the evening.
+1_summary:Rain throughout the day.
+2_maxTemp:31.66
+5_maxTempAt:02:30
+3_summary:Light rain starting in the evening.
+3_minTemp:22.11
+wind:9.3
+4_icon:partly-cloudy-night
 7_icon:partly-cloudy-night
 speed_unit:km/h
 4_maxTempAt:02:30
 5_minTempAt:16:30
 icon:clear-night
-5_summary:Mostly cloudy overnight.
-3_icon:clear-day
-4_minTemp:22.57
-7_maxTempAt:02:30
+5_summary:Drizzle and breezy starting in the evening.
+3_icon:rain
+4_minTemp:20.53
+7_maxTempAt:04:30
 temp_unit:C
-2_minTemp:22.59
-5_maxTemp:28.9
-humidity:0.8
-1_maxTemp:32.87
-4_minTempAt:15:30
+2_minTemp:21.95
+5_maxTemp:31.14
+humidity:0.79
+1_maxTemp:30.72
+4_minTempAt:14:30
 status:FILLED
-2_minTempAt:14:30
-7_minTemp:20.56
-2_icon:rain
-2_summary:Rain starting in the afternoon, continuing until evening.
+2_minTempAt:15:30
+7_minTemp:18.39
+2_icon:clear-day
+2_summary:Clear throughout the day.
 8_minTempAt:16:30

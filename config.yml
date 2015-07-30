@@ -1,0 +1,9 @@
+weather:
+    key: # your api key here
+    latitude: 40.7142
+    longitude: -74.0064
+    units: ca
+quote:
+    url: http://www.brainyquote.com/quotes_of_the_day.html
+fact:
+    url: http://facts.randomhistory.com/
