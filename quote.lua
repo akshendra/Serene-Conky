@@ -94,7 +94,7 @@ function explode(s)
   local count = 0;
 
   -- split the string
-  for value in string.gmatch(s,"[%w%p]+") do
+  for value in string.gmatch(s,"[%S]+") do
     count = count + 1;
     words[count] = value;
   end

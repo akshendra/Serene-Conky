@@ -273,10 +273,10 @@ function conky_main(  )
 	for i = 1,10 do
 		options.halign = 0
 		options.valign = 0
-		_, _ = lineText(trim1(conky_parse("${top name "..i.."}")), start_x + box_width/20, y + box_height/22 + box_height/120, box_height/24, 'Roboto', extents, options)
+		_, _ = lineText(trim1(conky_parse("${top name "..i.."}")), start_x + box_width/20, y + box_height/22 + box_height/120, box_height/24, 'Roboto Light', extents, options)
 		options.halign = 1
 		options.width = box_width - box_width/18
-		x, y = lineText(trim1(conky_parse("${top cpu "..i.."}")).."%", start_x, y + box_height/22 + box_height/120, box_height/24, 'Roboto', extents, options)
+		x, y = lineText(trim1(conky_parse("${top cpu "..i.."}")).."%", start_x, y + box_height/22 + box_height/120, box_height/24, 'Roboto Light', extents, options)
 	end
 
 
@@ -302,7 +302,7 @@ function conky_main(  )
 	options.halign = 0
 	options.valign = 0
 	_, _ = lineText('download:', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
-	local download = trim1(conky_parse("${downspeed wlan0}"))
+	local download = trim1(conky_parse("${downspeed eth0}"))
 	options.halign = 1
 	options.width = box_width - box_width/18
 	x, y = lineText(download.."/s", start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
@@ -311,7 +311,7 @@ function conky_main(  )
 	options.halign = 0
 	options.valign = 0
 	_, _ = lineText('upload:', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
-	local download = trim1(conky_parse("${upspeed wlan0}"))
+	local download = trim1(conky_parse("${upspeed eth0}"))
 	options.halign = 1
 	options.width = box_width - box_width/18
 	x, y = lineText(download.."/s", start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
@@ -478,10 +478,10 @@ function conky_main(  )
 	for i = 1,10 do
 		options.halign = 0
 		options.valign = 0
-		_, _ = lineText(trim1(conky_parse("${top_mem name "..i.."}")), start_x + box_width/20, y + box_height/22 + box_height/120, box_height/24, 'Roboto', extents, options)
+		_, _ = lineText(trim1(conky_parse("${top_mem name "..i.."}")), start_x + box_width/20, y + box_height/22 + box_height/120, box_height/24, 'Roboto Light', extents, options)
 		options.halign = 1
 		options.width = box_width - box_width/18
-		x, y = lineText(trim1(conky_parse("${top_mem mem_res "..i.."}")), start_x, y + box_height/22 + box_height/120, box_height/24, 'Roboto', extents, options)
+		x, y = lineText(trim1(conky_parse("${top_mem mem_res "..i.."}")), start_x, y + box_height/22 + box_height/120, box_height/24, 'Roboto Light', extents, options)
 	end
 
 	-- destroying the cairo surface
