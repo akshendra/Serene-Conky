@@ -186,14 +186,19 @@ function conky_main(  )
 	local scale = 1
 
 	-- variables for layout
-	local total_width = conky_window.width*(scale) - conky_window.width/20
-	local  total_height = conky_window.height*(scale) - conky_window.height/20
+	local total_width = conky_window.width*(scale) - conky_window.width/15
+	local total_height = conky_window.height*(scale) - conky_window.height/8
 	local box_width = total_width
 	local box_height = total_height
 
+
+
 	-- variables positioning
-	local start_x = conky_window.width/40
+	local start_x = conky_window.width/30
 	local  start_y = 0
+	-- cairo_rectangle(cr, start_x, start_y, box_width, box_height)
+	-- cairo_stroke(cr)
+
 	local x = start_x
 	local y  = start_y
 
@@ -208,8 +213,6 @@ function conky_main(  )
 	box_height = total_height/2.8
 	cairo_set_source_rgba(cr, 1,1,1,1)
 
-	-- cairo_rectangle(cr, start_x, start_y, box_width, box_height)
-	-- cairo_stroke(cr)
 
 
 	-- date and time variables
