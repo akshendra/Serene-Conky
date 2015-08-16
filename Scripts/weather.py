@@ -56,7 +56,7 @@ def readWeather(config):
         data['speed_unit'] = 'km/h'
     else:
         data['temp_unit'] = 'F'
-        data['wind_unit'] = 'mph'
+        data['speed_unit'] = 'mph'
 
     return data
 
