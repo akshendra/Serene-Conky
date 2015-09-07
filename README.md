@@ -8,7 +8,7 @@ This Conky theme requires python libraries of getting the data from the web, man
 ## pip
 We need a number of python libraries, first install pip
 ### On Ubuntu
-    sudo apt-get install pip
+    sudo apt-get install python-pip
 ### On Fedora
     sudo yum install python-pip
 If their is any problem consult their [documentation](https://pip.pypa.io/en/stable/installing.html)
