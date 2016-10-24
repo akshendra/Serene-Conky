@@ -350,19 +350,19 @@ function conky_main(  )
 	-- root meter
 	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /}")))
 
-	-- root filesystem
-	y = y + box_height/20
-	options.halign = 0
-	options.valign = 0
-	_, _ = lineText('/home', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
-	local used = trim1(conky_parse("${fs_used /home}"))
-	local total = trim1(conky_parse("${fs_size /home}"))
-	options.halign = 1
-	options.width = box_width - box_width/18
-	x, y = lineText(trim1(used).."/"..trim1(total), start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
+	-- home filesystem
+	--y = y + box_height/20
+	--options.halign = 0
+	--options.valign = 0
+	--_, _ = lineText('/home', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
+	--local used = trim1(conky_parse("${fs_used /home}"))
+	--local total = trim1(conky_parse("${fs_size /home}"))
+	--options.halign = 1
+	--options.width = box_width - box_width/18
+	--x, y = lineText(trim1(used).."/"..trim1(total), start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, options)
 
-	-- root meter
-	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /home}")))
+	-- home meter
+	--lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /home}")))
 
 
 
