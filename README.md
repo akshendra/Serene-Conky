@@ -41,7 +41,7 @@ For parsing html
     sudo pip install lxml
 
 ## Fonts
-For displaying the currect fonts
+For displaying the correct fonts
 ### For Ubuntu
 Get Google’s fonts using TypeCatcher 
 #### Install TypeCatcher
