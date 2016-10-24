@@ -11,7 +11,7 @@ xftalpha 1
 own_window yes
 own_window_transparent yes
 own_window_type desktop
-own_window_hints undecorate,below,sticky,skip_taskbar,skip_pager
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
 own_window_argb_visual yes
 
 # Use the Xdbe extension? (eliminates flicker)
