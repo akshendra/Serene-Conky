@@ -370,25 +370,25 @@ function conky_main(  )
 	-- Power
 	-- ################################################################################
 
-	start_x = conky_window.width/40 + total_width*(0.52)
-	start_y = total_height*(0.55)
-	box_width = total_width*(0.22)
-	box_height = total_height*(0.45)
-	cairo_set_source_rgba(cr, 1,1,1,1)
+	--start_x = conky_window.width/40 + total_width*(0.52)
+	--start_y = total_height*(0.55)
+	--box_width = total_width*(0.22)
+	--box_height = total_height*(0.45)
+	--cairo_set_source_rgba(cr, 1,1,1,1)
 
 	-- heading
-	options.valign = 1
-	options.halign = 0
-	x, y = lineText("Power", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options)
+	--options.valign = 1
+	--options.halign = 0
+	--x, y = lineText("Power", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, options)
 
 	-- battery status
-	options.halign = 1
-	options.valign = 0
-	options.width = box_width - box_width/18
-	x, y = lineText(trim1(conky_parse("${battery}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, options)
+	--options.halign = 1
+	--options.valign = 0
+	--options.width = box_width - box_width/18
+	--x, y = lineText(trim1(conky_parse("${battery}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, options)
 
 	-- battery meter
-	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${battery_percent}")))
+	--lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${battery_percent}")))
 
 
 
@@ -397,7 +397,7 @@ function conky_main(  )
 	-- ################################################################################
 
 	start_x = conky_window.width/40 + total_width*(0.52)
-	start_y = y + box_height/15
+	start_y = total_height*(0.55)
 	box_width = total_width*(0.22)
 	box_height = total_height*(0.45)
 	cairo_set_source_rgba(cr, 1,1,1,1)
