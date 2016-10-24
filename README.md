@@ -40,6 +40,14 @@ For parsing html
 ### Using pip
     sudo pip install lxml
 
+## Fonts
+For displaying the currect fonts
+### For Ubuntu
+Get Google’s fonts using TypeCatcher 
+#### Install TypeCatcher
+    sudo apt-get update & sudo apt-get install typecatcher
+#### Use TypeCatcher to install the following:
+    'Text Me One', 'Roboto' & 'Poiret One'
 
 # Configuration:
 The main configuration is in config.yml (not complete yet)
