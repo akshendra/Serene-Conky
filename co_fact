@@ -47,7 +47,7 @@ default_color 979797
 color0 467f77
 
 # size of window
-minimum_size 1366 748
+minimum_size 1858 1057
 
 # Aligned position on screen, may be top_left, top_right, top_middle, bottom_left, bottom_right, bottom_middle, middle_left, middle_middle, middle_right, or none
 alignment bottom_middle

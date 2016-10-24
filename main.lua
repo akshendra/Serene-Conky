@@ -208,7 +208,7 @@ function conky_main(  )
 	-- DATE TIME
 	-- ################################################################################
 	start_x = conky_window.width/40
-	start_y = 0
+	start_y = 40
 	box_width = total_width/2
 	box_height = total_height/2.8
 	cairo_set_source_rgba(cr, 1,1,1,1)
