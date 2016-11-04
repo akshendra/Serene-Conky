@@ -20,11 +20,11 @@ def readFact(config):
     # get the quote page
     page = requests.get(config['fact']['url'])
     # make the soup
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, "lxml")
 
     # get the fact
     data = dict()
-    data['fact'] = unicode(soup(class_='home-text')[0].text).strip()
+    data['fact'] = unicode(soup(class_='sliderText')[0].text).strip()
     data['fact'] = re.sub(r'\s+', r' ', data['fact'])
 
     # lets find the quotes

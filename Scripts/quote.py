@@ -19,7 +19,7 @@ def readQuote(config):
     # get the quote page
     page = requests.get(config['quote']['url'])
     # make the soup
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, "lxml")
 
     # lets find the quotes
     data = dict()
