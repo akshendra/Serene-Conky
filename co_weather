@@ -89,4 +89,4 @@ lua_draw_hook_pre main_weather
 lua_startup_hook setup_weather
 
 TEXT
-${execi 100 Scripts/weather.py}
+${execi 300 Scripts/weather.py}
