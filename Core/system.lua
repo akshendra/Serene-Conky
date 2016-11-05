@@ -1,5 +1,5 @@
 require 'cairo'
-require 'common'
+require 'Core/common'
 
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup_system()

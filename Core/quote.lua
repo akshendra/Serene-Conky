@@ -1,5 +1,5 @@
 require 'cairo'
-require 'common'
+require 'Core/common'
 
 -- reads the weather from Downloads/weather.txt
 function readQuote()

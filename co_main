@@ -84,7 +84,7 @@ use_spacer right
 text_buffer_size 2048
 
 # -- Lua load -- #
-lua_load system.lua
+lua_load Core/system.lua
 lua_draw_hook_pre main_system
 lua_startup_hook setup_system
 

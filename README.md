@@ -7,8 +7,8 @@ a nice and clean conky theme made **by akshendra** (using lua, cairo and python)
 + Battery info hidden
 
 ## More Info
-+ [Requirements](Requirements.md)
-+ [Configuration](Configuration.md)
++ [Requirements](Docs/Requirements.md)
++ [Configuration](Docs/Configuration.md)
 
 ## Run
 To start the theme, just go in its directory and use
