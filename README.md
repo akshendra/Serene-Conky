@@ -1,10 +1,5 @@
-## About
-This is a Mod for [Serene-Conky](https://github.com/akshendra/Serene-Conky)
-a nice and clean conky theme made **by akshendra** (using lua, cairo and python)
-
-## Changes
-+ Weather info disabled
-+ Battery info hidden
+# Serene-Conky
+Nice and clean conky theme, made using lua, cairo and python
 
 ## More Info
 + [Requirements](Docs/Requirements.md)
