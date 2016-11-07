@@ -1,9 +1,15 @@
 weather:
+    enabled: False
     key: # your api key here
     latitude: 40.7142
     longitude: -74.0064
     units: ca
 quote:
+    enabled: True
     url: http://www.brainyquote.com/quotes_of_the_day.html
 fact:
+    enabled: True
     url: http://facts.randomhistory.com/
+system:
+    enabled: True
+    battery: False
