@@ -17,7 +17,6 @@ end
 
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup_quote()
-
     -- global variables to hold the data
     quote = {}
     quote['status'] = 'EMPTY'
@@ -29,22 +28,6 @@ end
 
 -- function main that is called everty time the script is run
 function conky_main_quote(  )
-
-    -- if no conky window then exit
-    if conky_window == nil then return end
-
-    -- the number of update
-    local updates = tonumber(conky_parse("${updates}"))
-    -- if not third update exit
-    if updates < 1 then return end
-
-    -- prepare cairo drawing surface
-    local cs = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
-    cr = cairo_create(cs)
-
-    -- for positioning text
-    local extents = cairo_text_extents_t:create()
-    local font_ext = cairo_font_extents_t:create();
 
     local text = ""
 
@@ -66,7 +49,6 @@ function conky_main_quote(  )
         update_quote = true
         start_quote = false
     end
-
 
     print('Time since last update (update at 555): ' .. (hour * 3600 + minute * 60 + second) % 555)
 
@@ -95,22 +77,21 @@ function conky_main_quote(  )
 
     -- variables positioning
     local start_x = conky_window.width/30
-    local  start_y = 0
+    local start_y = 0
     local x = start_x
-    local y  = start_y
+    local y = start_y
 
     -- lets print the quotes
     start_y = conky_window.height/2.8;
     box_width = total_width
     box_height = total_height/6
-    cairo_set_source_rgba(cr, 1,1,1,1)
+    --cairo_set_source_rgba(cr, 1,1,1,1)
     y = start_y
 
     -- cairo_rectangle(cr, start_x, start_y, box_width, box_height)
     -- cairo_stroke(cr)
 
     print('Quote data status: ' .. quote['status'])
-
 
     -- if the status is FILLED that means we have the data
     if quote['status'] == 'FILLED' then
@@ -124,12 +105,5 @@ function conky_main_quote(  )
       options.halign = 1
       options.width = box_width*(0.46)
       x, y = lineText(quote[which_quote..'_author'], start_x + box_width*(0.02) , y + box_height*(0.05), box_height*(0.15), 'Roboto Light', extents, font_ext, options)
-
     end
-
-
-    -- destroying the cairo surface
-    cairo_destroy(cr)
-    cairo_surface_destroy(cs)
-    cr=nil
 end

@@ -7,24 +7,7 @@ function conky_setup_system()
 end
 
 -- the function that is called by conky every interval
-function conky_main_system(  )
-
-	-- if no conky window then exit
-	if conky_window == nil then return end
-
-	-- the number of update
-	local updates = tonumber(conky_parse("${updates}"))
-	-- if not third update exit
-	if updates < 1 then return end
-
-	-- prepare cairo drawing surface
-	local cs = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
-	cr = cairo_create(cs)
-
-	-- for positioning text
-    local extents = cairo_text_extents_t:create()
-    local font_ext = cairo_font_extents_t:create();
-
+function conky_main_system()
 
 	-- for finding out the internet connection
 	local file = io.popen("/sbin/route -n | grep -c '^0\.0\.0\.0'")
@@ -49,8 +32,6 @@ function conky_main_system(  )
 	local box_width = total_width
 	local box_height = total_height
 
-
-
 	-- variables positioning
 	local start_x = conky_window.width/30
 	local  start_y = 0
@@ -60,8 +41,6 @@ function conky_main_system(  )
 	local x = start_x
 	local y  = start_y
 
-
-
 	-- ################################################################################
 	-- DATE TIME
 	-- ################################################################################
@@ -69,9 +48,7 @@ function conky_main_system(  )
 	start_y = 40
 	box_width = total_width/2
 	box_height = total_height/2.8
-	cairo_set_source_rgba(cr, 1,1,1,1)
-
-
+	--cairo_set_source_rgba(cr, 1,1,1,1)
 
 	-- date and time variables
 	local hour = conky_parse('${time %I}')
@@ -91,8 +68,6 @@ function conky_main_system(  )
 	options.halign = 0
 	options.valign = 1
 	lineText(month.." "..day..", "..year, x + box_width/50, start_y + box_height/2 + box_height/25, box_height/7, "Poiret One", extents, font_ext, options)
-
-
 
 	-- ################################################################################
 	-- CPU
@@ -140,8 +115,6 @@ function conky_main_system(  )
 		x, y = lineText(trim1(conky_parse("${top cpu "..i.."}")).."%", start_x, y + box_height/22 + box_height/120, box_height/24, 'Roboto Light', extents, font_ext, options)
 	end
 
-
-
 	-- ################################################################################
 	-- Network
 	-- ################################################################################
@@ -176,8 +149,6 @@ function conky_main_system(  )
 	options.halign = 1
 	options.width = box_width - box_width/18
 	x, y = lineText(download.."/s", start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, font_ext, options)
-
-
 
 	-- ################################################################################
 	-- File System
@@ -222,8 +193,6 @@ function conky_main_system(  )
 	-- home meter
 	--lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /home}")))
 
-
-
 	-- ################################################################################
 	-- Power
 	-- ################################################################################
@@ -247,8 +216,6 @@ function conky_main_system(  )
 
 	-- battery meter
 	--lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${battery_percent}")))
-
-
 
 	-- ################################################################################
 	-- Disk
@@ -284,8 +251,6 @@ function conky_main_system(  )
 	options.width = box_width - box_width/18
 	x, y = lineText(trim1(conky_parse("${diskio_read}"))..'/s', start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, font_ext, options)
 
-
-
 	-- ################################################################################
 	-- Uptime
 	-- ################################################################################
@@ -306,8 +271,6 @@ function conky_main_system(  )
 	options.valign = 0
 	options.width = box_width - box_width/18
 	x, y = lineText(trim1(conky_parse("${uptime}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, font_ext, options)
-
-
 
 	-- ################################################################################
 	-- Memory
@@ -344,10 +307,5 @@ function conky_main_system(  )
 		options.width = box_width - box_width/18
 		x, y = lineText(trim1(conky_parse("${top_mem mem_res "..i.."}")), start_x, y + box_height/22 + box_height/120, box_height/24, 'Roboto Light', extents, font_ext, options)
 	end
-
-	-- destroying the cairo surface
-	cairo_destroy(cr);
-	cairo_surface_destroy(cs);
-	cr=nil;
 
 end

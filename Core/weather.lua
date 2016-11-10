@@ -17,7 +17,6 @@ end
 
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup_weather()
-
 	-- global variables to hold the data
 	weather = {}
 	weather['status'] = 'EMPTY'
@@ -29,22 +28,6 @@ end
 
 -- function main that is called everty time the script is run
 function conky_main_weather(  )
-
-	-- if no conky window then exit
-	if conky_window == nil then return end
-
-	-- the number of update
-	local updates = tonumber(conky_parse("${updates}"))
-	-- if not third update exit
-	if updates < 1 then return end
-
-	-- prepare cairo drawing surface
-	local cs = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
-	cr = cairo_create(cs)
-
-	-- for positioning text
-	local extents = cairo_text_extents_t:create()
-	local font_ext = cairo_font_extents_t:create();
 
     local text = ""
 
@@ -104,7 +87,7 @@ function conky_main_weather(  )
 	start_y = 0;
 	box_width = total_width/2
 	box_height = total_height/2.8
-	cairo_set_source_rgba(cr, 1,1,1,1)
+	--cairo_set_source_rgba(cr, 1,1,1,1)
 
 	print('Weather data status: ' .. weather['status'])
 
@@ -210,15 +193,5 @@ function conky_main_weather(  )
 		end
 
         print('Updated At: ' .. weather['update_at'])
-
-
-
-
 	end
-
-
-    -- destroying the cairo surface
-	cairo_destroy(cr)
-	cairo_surface_destroy(cs)
-	cr=nil
 end

@@ -17,34 +17,16 @@ end
 
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup_fact()
-
     -- global variables to hold the data
     fact = {}
     fact['status'] = 'EMPTY'
 
     -- a global to tell if the script is running for the first time
     start_fact = true
-
 end
 
 -- function main that is called everty time the script is run
 function conky_main_fact(  )
-
-    -- if no conky window then exit
-    if conky_window == nil then return end
-
-    -- the number of update
-    local updates = tonumber(conky_parse("${updates}"))
-    -- if not third update exit
-    if updates < 1 then return end
-
-    -- prepare cairo drawing surface
-    local cs = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
-    cr = cairo_create(cs)
-
-    -- for positioning text
-    local extents = cairo_text_extents_t:create()
-    local font_ext = cairo_font_extents_t:create();
 
     local text = ""
 
@@ -66,7 +48,6 @@ function conky_main_fact(  )
         update_fact = true
         start_fact = false
     end
-
 
     print('Time since last update (update at 555): ' .. (hour * 3600 + minute * 60 + second) % 555)
 
@@ -103,7 +84,7 @@ function conky_main_fact(  )
     start_y = conky_window.height/2.8;
     box_width = total_width/2
     box_height = total_height/6
-    cairo_set_source_rgba(cr, 1,1,1,1)
+    --cairo_set_source_rgba(cr, 1,1,1,1)
     y = start_y
     start_x = box_width
 
@@ -118,10 +99,4 @@ function conky_main_fact(  )
       options.halign = 0
       _, y, _ = multiText(fact['fact'], start_x + box_width*(0.1) , y + box_height*(0.1), box_width*(0.90), box_height, box_height*(0.14), 'Text Me One', extents, font_ext, options);
     end
-
-
-    -- destroying the cairo surface
-    cairo_destroy(cr)
-    cairo_surface_destroy(cs)
-    cr=nil
 end
