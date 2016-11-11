@@ -88,7 +88,5 @@ conky.config = {
 };
 
 conky.text = [[
-	${execi 300 Scripts/fact.py}
-	${execi 300 Scripts/quote.py}
-	#${execi 300 Scripts/weather.py}
+	${execi 300 Scripts/pre.py}
 ]];
