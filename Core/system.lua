@@ -45,7 +45,7 @@ function conky_main_system(enabled_home_file_system, enable_power)
 	-- DATE TIME
 	-- ################################################################################
 	start_x = conky_window.width/40
-	start_y = 40
+	start_y = 0
 	box_width = total_width/2
 	box_height = total_height/2.8
 	--cairo_set_source_rgba(cr, 1,1,1,1)
@@ -65,9 +65,9 @@ function conky_main_system(enabled_home_file_system, enable_power)
 	x, y = lineText(hour..":"..minute.." "..part, start_x, start_y + box_height/2, box_height/3, "Text Me One", extents, font_ext, options)
 
 	-- date
-	options.halign = 0
+	--options.halign = 2
 	options.valign = 1
-	lineText(month.." "..day..", "..year, x + box_width/50, start_y + box_height/2 + box_height/25, box_height/7, "Poiret One", extents, font_ext, options)
+	lineText(month.." "..day..", "..year, start_x, start_y + box_height/2 + box_height/25, box_height/7, "Poiret One", extents, font_ext, options)
 
 	-- ################################################################################
 	-- CPU
