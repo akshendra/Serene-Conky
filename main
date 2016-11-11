@@ -45,7 +45,7 @@ conky.config = {
 	color0 = '#467f77',
 
 -- size of window
-	minimum_width = 1858, minimum_height = 1057,
+	minimum_width = 1920, minimum_height = 1137,
 
 -- Aligned position on screen, may be top_left, top_right, top_middle, bottom_left, bottom_right, bottom_middle, middle_left, middle_middle, middle_right, or none
 	alignment = 'bottom_middle',
