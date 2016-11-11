@@ -7,7 +7,7 @@ function conky_setup_system()
 end
 
 -- the function that is called by conky every interval
-function conky_main_system()
+function conky_main_system(enabled_home_file_system, enable_power)
 
 	-- for finding out the internet connection
 	local file = io.popen("/sbin/route -n | grep -c '^0\.0\.0\.0'")
@@ -179,43 +179,47 @@ function conky_main_system()
 	-- root meter
 	lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /}")))
 
-	-- home filesystem
-	--y = y + box_height/20
-	--options.halign = 0
-	--options.valign = 0
-	--_, _ = lineText('/home', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, font_ext, options)
-	--local used = trim1(conky_parse("${fs_used /home}"))
-	--local total = trim1(conky_parse("${fs_size /home}"))
-	--options.halign = 1
-	--options.width = box_width - box_width/18
-	--x, y = lineText(trim1(used).."/"..trim1(total), start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, font_ext, options)
+	if enabled_home_file_system == true then
+		-- home filesystem
+		y = y + box_height/20
+		options.halign = 0
+		options.valign = 0
+		_, _ = lineText('/home', start_x + box_width/20, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, font_ext, options)
+		local used = trim1(conky_parse("${fs_used /home}"))
+		local total = trim1(conky_parse("${fs_size /home}"))
+		options.halign = 1
+		options.width = box_width - box_width/18
+		x, y = lineText(trim1(used).."/"..trim1(total), start_x, y + box_height/20 + box_height/120, box_height/20, 'Text Me One', extents, font_ext, options)
 
-	-- home meter
-	--lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /home}")))
+		-- home meter
+		lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${fs_used_perc /home}")))
+	end
 
 	-- ################################################################################
 	-- Power
 	-- ################################################################################
 
-	--start_x = conky_window.width/40 + total_width*(0.52)
-	--start_y = total_height*(0.55)
-	--box_width = total_width*(0.22)
-	--box_height = total_height*(0.45)
-	--cairo_set_source_rgba(cr, 1,1,1,1)
+	if enable_power == true then
+		start_x = conky_window.width/40 + total_width*(0.52)
+		start_y = total_height*(0.55)
+		box_width = total_width*(0.22)
+		box_height = total_height*(0.45)
+		cairo_set_source_rgba(cr, 1,1,1,1)
 
-	-- heading
-	--options.valign = 1
-	--options.halign = 0
-	--x, y = lineText("Power", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, font_ext, options)
+		-- heading
+		options.valign = 1
+		options.halign = 0
+		x, y = lineText("Power", start_x + box_width/20, start_y + box_height/15, box_height/10, "Poiret One", extents, font_ext, options)
 
-	-- battery status
-	--options.halign = 1
-	--options.valign = 0
-	--options.width = box_width - box_width/18
-	--x, y = lineText(trim1(conky_parse("${battery}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, font_ext, options)
+		-- battery status
+		options.halign = 1
+		options.valign = 0
+		options.width = box_width - box_width/18
+		x, y = lineText(trim1(conky_parse("${battery}")), start_x, y + box_height/18 + box_height/120, box_height/18, 'Text Me One', extents, font_ext, options)
 
-	-- battery meter
-	--lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${battery_percent}")))
+		-- battery meter
+		lineMeter(start_x+box_width/20, y + box_height/30, box_width - box_width/10, tonumber(conky_parse("${battery_percent}")))
+	end
 
 	-- ################################################################################
 	-- Disk

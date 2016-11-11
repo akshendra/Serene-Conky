@@ -7,7 +7,7 @@ require 'Core/weather'
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup()
     -- setup modules
-    conky_setup_system()
+    conky_setup_system(false, false)
     conky_setup_fact()
     conky_setup_quote()
     --conky_setup_weather()
