@@ -12,4 +12,6 @@ fact:
     url: http://facts.randomhistory.com/
 system:
     enabled: True
-    battery: False
+    elements:
+        battery: False
+        home: False
