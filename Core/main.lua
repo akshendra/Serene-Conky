@@ -4,6 +4,11 @@ require 'Core/fact'
 require 'Core/quote'
 require 'Core/weather'
 
+-- will be used to get flags from config file
+function read_config()
+
+end
+
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup()
     -- setup modules
