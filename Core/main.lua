@@ -3,19 +3,45 @@ require 'Core/system'
 require 'Core/fact'
 require 'Core/quote'
 require 'Core/weather'
+require 'Core/common'
 
 -- will be used to get flags from config file
 function read_config()
 
+    config_file = 'config'
+
+    -- global variables to hold the data
+    config = {}
+    
+    for line in io.lines(config_file) do 
+        local module
+        local elements
+        module, elements = line:match("(%w+)(.*)")
+        config[module] = elements
+    end 
+    --for k, v in pairs( config ) do
+    --    print(k, v)
+    --end
 end
 
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup()
+
+    read_config()
+
     -- setup modules
-    conky_setup_system(false, false)
-    conky_setup_fact()
-    conky_setup_quote()
-    --conky_setup_weather()
+    if config["system"] then
+        conky_setup_system()
+    end
+    if config["fact"] then
+        conky_setup_fact()
+    end
+    if config["quote"] then
+        conky_setup_quote()
+    end
+    if config["weather"] then
+        conky_setup_weather()
+    end
 end
 
 -- function main that is called everty time the script is run
@@ -39,14 +65,26 @@ function conky_main()
     cairo_set_source_rgba(cr, 1,1,1,1)
 
     -- run modules
-    conky_main_system()
-    conky_main_fact()
-    conky_main_quote()
-    --conky_main_weather()
+    if config["system"] then
+        local home_element
+        local battery_element
+        if string.find(config["system"], "home") then home_element = true else home_element = false end
+        if string.find(config["system"], "battery") then battery_element = true else battery_element = false end
+        print(home_element, battery_element)
+        conky_main_system(home_element, battery_element)
+    end
+    if config["fact"] then
+        conky_main_fact()
+    end
+    if config["quote"] then
+        conky_main_quote()
+    end
+    if config["weather"] then
+        conky_main_weather()
+    end
 
     -- destroying the cairo surface
 	cairo_destroy(cr);
 	cairo_surface_destroy(cs);
 	cr=nil;
-
 end
