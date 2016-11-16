@@ -1,5 +1,5 @@
 weather:
-    enabled: False
+    enabled: True
     key: # your api key here
     latitude: 40.7142
     longitude: -74.0064
@@ -13,5 +13,5 @@ fact:
 system:
     enabled: True
     elements:
-        battery: False
-        home: False
+        battery: True
+        home: True
