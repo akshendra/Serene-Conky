@@ -8,6 +8,7 @@ import datetime
 import yaml
 import re
 
+
 def readConfiguration():
     # open the configuration file in read mode
     config_file = open('config.yml', 'r')

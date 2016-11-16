@@ -19,9 +19,6 @@ function read_config()
         module, elements = line:match("(%w+)(.*)")
         config[module] = elements
     end 
-    --for k, v in pairs( config ) do
-    --    print(k, v)
-    --end
 end
 
 --  the funtion which will be called at the beginning of the run, used to setup a few global values

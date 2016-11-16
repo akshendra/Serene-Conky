@@ -20,7 +20,6 @@ def prepConfiguration():
                 line = module
                 if 'elements' in config_info[module]:
                     elements = config_info[module]['elements']
-                    ## print "Elements status = {}".format(elements)
                     # check for needed elements
                     for element, value in config_info[module]['elements'].iteritems():
                         if value is True:
@@ -31,7 +30,6 @@ def prepConfiguration():
 
 # read the configuration file
 enabled_modules = prepConfiguration()
-## print "Modules enabled = {}".format(enabled_modules)
 # run according to config
 for module in enabled_modules:
     file_name = "Scripts/{}.py".format(module)

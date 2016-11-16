@@ -6,6 +6,7 @@ import yaml
 import forecastio
 import datetime
 
+
 def readConfiguration():
     # open the configuration file in read mode
     config_file = open('config.yml', 'r')
@@ -82,5 +83,3 @@ data['status'] = 'FILLED'
 
 # write the weather
 writeWeather(data)
-
-

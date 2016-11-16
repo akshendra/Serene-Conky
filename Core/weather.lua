@@ -14,7 +14,6 @@ function readWeather()
 	end
 end
 
-
 --  the funtion which will be called at the beginning of the run, used to setup a few global values
 function conky_setup_weather()
 	-- global variables to hold the data
@@ -23,7 +22,6 @@ function conky_setup_weather()
 
 	-- a global to tell if the script is running for the first time
 	start_weather = true
-
 end
 
 -- function main that is called everty time the script is run
