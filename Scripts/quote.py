@@ -7,6 +7,7 @@ import os
 import datetime
 import yaml
 
+
 def readConfiguration():
     # open the configuration file in read mode
     config_file = open('config.yml', 'r')
@@ -19,7 +20,7 @@ def readQuote(config):
     # get the quote page
     page = requests.get(config['quote']['url'])
     # make the soup
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, "lxml")
 
     # lets find the quotes
     data = dict()

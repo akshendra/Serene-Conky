@@ -1,6 +1,5 @@
 require 'cairo'
 
-
 -- this is the function used for printing single line of text
 -- @ text : the text to print
 -- @ x, y : the coordinated to print the text
@@ -82,28 +81,6 @@ function lineText(text, x, y, size, family, text_ext, font_ext, options)
 
 end
 
-
--- thanks to dasblinkenlight (stackoverflow)
--- function explode slipts the string at spaces and put them into a table
--- @ s : string to explode
--- # words : a table of words
--- # count : the mumber of words
-function explode(s)
-
-  local words = {};
-  local count = 0;
-
-  -- split the string
-  for value in string.gmatch(s,"[%S]+") do
-    count = count + 1;
-    print(value);
-    words[count] = value;
-  end
-
-  return count, words;
-
-end
-
 -- a function to print multiline text propery layout with word wrapping ofcourse
 -- @ text : the text to print
 -- @ x, y : the coordinated to print the text
@@ -181,6 +158,126 @@ function multiText(text, x, y, width, height, size, family, text_ext, font_ext, 
 
 end
 
+-- this function trims spaces from both side a string
+-- @ s : the string to trim
+-- # s : the trimed string
+function trim1(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+-- this function prints a progress bar style meter
+-- @ start_x, start_y : starting cordinate of the line
+-- @ width : width of the meter
+-- @ value : the percentage of meter to fill
+function lineMeter(start_x, start_y, width, value)
+
+	-- thin line
+	cairo_stroke(cr)
+	cairo_set_line_width(cr, 1)
+	cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 0.5)
+	cairo_move_to(cr, start_x, start_y)
+	cairo_line_to(cr, start_x+width, start_y)
+	cairo_stroke(cr)
+
+	-- thick line
+	cairo_set_source_rgba(cr, 1, 1, 1,1)
+	cairo_move_to(cr, start_x, start_y)
+	cairo_line_to(cr, start_x+width*(value/100), start_y)
+	cairo_set_line_width(cr, 5)
+	cairo_stroke(cr)
+
+end
+
+-- this function prints a circular meter
+-- @ center_x, center_y : starting cordinate of the line
+-- @ radius : radius of the meter
+-- @ value : the percentage of meter to fill
+-- @ suffix : to be added to the value prited in the center if any
+function meter(center_x, center_y, radius, value, suffix)
+
+	-- thin circle
+	cairo_stroke(cr)
+	cairo_set_line_width(cr, 1)
+	cairo_set_source_rgba(cr, 0.7, 0.7, 0.7, 0.5)
+	cairo_arc (cr, center_x, center_y, radius, 0, 2*math.pi)
+	cairo_stroke(cr)
+
+	-- fixing the value
+	if value == nil then
+		value = 0
+	end
+
+	-- thick cirlce
+	cairo_set_source_rgba(cr, 1, 1, 1,1)
+	cairo_arc (cr, center_x, center_y, radius-2, -math.pi/2, 2*math.pi*(value/100) -math.pi/2)
+	cairo_set_line_width(cr, 5)
+	cairo_stroke(cr)
+
+	-- value in the center
+	local extents = cairo_text_extents_t:create()
+	local text = ""
+	text = value..suffix
+	cairo_set_font_size(cr, radius/2)
+	cairo_select_font_face(cr, "Poiret One", 0, 0)
+	cairo_text_extents(cr, text, extents)
+	cairo_move_to(cr, center_x-extents.width/2, center_y + extents.height/2)
+	cairo_show_text(cr, text)
+end
+
+-- thanks to dasblinkenlight (stackoverflow)
+-- function explode slipts the string at spaces and put them into a table
+-- @ s : string to explode
+-- # words : a table of words
+-- # count : the mumber of words
+function explode(s)
+
+  local words = {};
+  local count = 0;
+
+  -- split the string
+  for value in string.gmatch(s,"[%S]+") do
+    count = count + 1;
+    -- print(value);
+    words[count] = value;
+  end
+
+  return count, words;
+
+end
+
+-- the funtion which paints the image passed
+-- @ ir : cairo context
+-- @ startx, starty : top left co-ordinates of image
+-- @ width, height : dimensions of image
+-- @ path : path of the image file (should be png)
+function drawImage (ir, startx, starty, width, height, path)
+
+	-- create the surface and get the dimensions
+	local w, h;
+	local image = cairo_image_surface_create_from_png (path);
+	w = cairo_image_surface_get_width (image);
+	h = cairo_image_surface_get_height (image);
+	cairo_new_path (ir);
+
+
+	-- scale to appropriate size, ie the given dimensions
+	cairo_scale(ir, width/w, height/h);
+	w = cairo_image_surface_get_width (image);
+	h = cairo_image_surface_get_height (image);
+
+	-- paint the surface
+	cairo_set_source_surface (ir, image, startx*(1/(width/w)), starty*(1/(height/h)));
+	cairo_paint (ir);
+
+	print('Drawing Image : ' .. path)
+
+	-- all done destroy the surface
+	cairo_surface_destroy (image);
+	cairo_destroy(ir);
+
+	return startx + width, starty + height
+
+end
 
 -- see if the file exists
 -- @file : path of the file to check
@@ -189,7 +286,6 @@ function file_exists(file)
   if f then f:close() end
   return f ~= nil
 end
-
 
 -- get all lines from a file, returns an empty
 -- list/table if the file does not exist
@@ -201,130 +297,4 @@ function lines_from(file)
     lines[#lines + 1] = line
   end
   return lines
-end
-
-
--- reads the weather from Downloads/weather.txt
-function readFact()
-    -- read the weather file
-    print('Reading the fact:')
-    fact_file = lines_from('Downloads/fact.cml')
-    -- print the line
-    for index, line in pairs(fact_file) do
-        _,_,key, value = line:find('([%a%d_]+):(.+)')
-        print(key..value)
-        fact[key] = value
-    end
-end
-
-
---  the funtion which will be called at the beginning of the run, used to setup a few global values
-function conky_setup()
-
-    -- global variables to hold the data
-    fact = {}
-    fact['status'] = 'EMPTY'
-
-    -- a global to tell if the script is running for the first time
-    start_fact = true
-
-end
-
--- function main that is called everty time the script is run
-function conky_main(  )
-
-    -- if no conky window then exit
-    if conky_window == nil then return end
-
-    -- the number of update
-    local updates = tonumber(conky_parse("${updates}"))
-    -- if not third update exit
-    if updates < 1 then return end
-
-    -- prepare cairo drawing surface
-    local cs = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
-    cr = cairo_create(cs)
-
-    -- for positioning text
-    local extents = cairo_text_extents_t:create()
-    local font_ext = cairo_font_extents_t:create();
-
-    local text = ""
-
-    -- date and time variables
-    local hour = tonumber(conky_parse('${time %I}'))
-    local minute = tonumber(conky_parse('${time %M}'))
-    local second = tonumber(conky_parse('${time %S}'))
-
-    -- if the weather is to be update this time
-    local update_fact = false
-
-    -- update the weather every nine minutes
-    if (hour * 3600 + minute * 60 + second) % 555  <= 3 then
-        update_fact = true
-    end
-
-    -- if this the first time
-    if start_fact then
-        update_fact = true
-        start_fact = false
-    end
-
-
-    print('Time since last update (update at 555): ' .. (hour * 3600 + minute * 60 + second) % 555)
-
-    -- read the weather
-    if update_fact then
-        readFact()
-    end
-
-    -- options for printing text
-    local options = {}
-    options.valign = 0
-    options.halign = 0
-    options.width = 0
-    options.height = 0
-    options.bold = 0
-    options.italic = 0
-
-    -- scaling varible
-    local scale = 1
-
-    -- variables for layout
-    local total_width = conky_window.width*(scale) - conky_window.width/15
-    local total_height = conky_window.height*(scale) - conky_window.height/8
-    local box_width = total_width
-    local box_height = total_height
-
-    -- variables positioning
-    local start_x = conky_window.width/30
-    local  start_y = 0
-    local x = start_x
-    local y  = start_y
-
-    -- lets print the facts
-    start_y = conky_window.height/2.8;
-    box_width = total_width/2
-    box_height = total_height/6
-    cairo_set_source_rgba(cr, 1,1,1,1)
-    y = start_y
-    start_x = box_width
-
-    -- cairo_rectangle(cr, start_x, start_y, box_width, box_height)
-    -- cairo_stroke(cr)
-
-    print('Fact data status: ' .. fact['status'])
-
-    -- if the status is FILLED that means we have the data
-    if fact['status'] == 'FILLED' then
-      -- print the fact
-      options.halign = 0
-      _, y, _ = multiText(fact['fact'], start_x + box_width*(0.1) , y + box_height*(0.1), box_width*(0.90), box_height, box_height*(0.14), 'Text Me One', extents, font_ext, options);
-    end
-
-
-    -- destroying the cairo surface
-    cairo_destroy(cr)
-    cairo_surface_destroy(cs)
-    cr=nil
 end
