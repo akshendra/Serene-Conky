@@ -1,6 +1,6 @@
 weather:
     enabled: True
-    key: a219f3d71db676b45d576e8e063461b2
+    key: # YOUR KEY HERE
     latitude: 50.5668102
     longitude: 4.7160152
     units: ca
