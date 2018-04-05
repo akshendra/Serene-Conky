@@ -24,10 +24,11 @@ def readQuote(config):
 
     # lets find the quotes
     data = dict()
-    quotes = soup(class_ = ['boxyPaddingBig'])
-    for i in range(0,5):
-        data[str(i+1) + '_quote'] = unicode(quotes[i].a.text).strip()
-        data[str(i+1) + '_author'] = unicode(quotes[i].div.text).strip()
+    quotes = soup(class_=["b-qt"])
+    authors = soup(class_=["bq-aut"])
+    for i in range(0, 5):
+        data[str(i+1) + '_quote'] = unicode(quotes[i].string)
+        data[str(i+1) + '_author'] = unicode(authors[i].string)
 
     return data
 

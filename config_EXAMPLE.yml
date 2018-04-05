@@ -1,8 +1,8 @@
 weather:
     enabled: True
-    key: # your api key here
-    latitude: 40.7142
-    longitude: -74.0064
+    key: # YOUR KEY HERE
+    latitude: 50.5668102
+    longitude: 4.7160152
     units: ca
 quote:
     enabled: True

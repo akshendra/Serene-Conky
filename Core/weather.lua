@@ -120,7 +120,8 @@ function conky_main_weather(  )
 		options.valign = 1
 		_, y =  lineText('Minimum ' .. weather['1_minTemp'] .. '°' .. weather['temp_unit'], start_x + box_width*(0.05), y + box_height*(0.01) , box_height*(0.06), 'Text Me One', extents, font_ext, options)
 		_, y =  lineText('Maximum ' .. weather['1_maxTemp'] .. '°' .. weather['temp_unit'], start_x + box_width*(0.05), y , box_height*(0.06), 'Text Me One', extents, font_ext, options)
-		_, y =  lineText('Humidity ' .. tonumber(weather['humidity'])*100 .. '%', start_x + box_width*(0.05), y , box_height*(0.06), 'Text Me One', extents, font_ext, options)
+		-- BUG ???
+		--_, y =  lineText('Humidity ' .. tonumber(weather['humidity'])*100 .. '%', start_x + box_width*(0.05), y , box_height*(0.06), 'Text Me One', extents, font_ext, options)
 		_, y =  lineText('Wind ' .. weather['wind'] .. weather['speed_unit'] , start_x + box_width*(0.05), y , box_height*(0.06), 'Text Me One', extents, font_ext, options)
 
 
