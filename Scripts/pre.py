@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#! /usr/bin/python3
 # Used to load stuff the modules need before running
 # (reads the config file to find whats needed)
 
