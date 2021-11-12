@@ -21,7 +21,7 @@ clean_files ()
 {
     rm -f log
     rm -f config
-    rm -rf Downloads
+    rm -r Downloads/*.cml
 }
 
 setup_res main
