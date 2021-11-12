@@ -21,7 +21,7 @@ def prepConfiguration():
                 if 'elements' in config_info[module]:
                     elements = config_info[module]['elements']
                     # check for needed elements
-                    for element, value in config_info[module]['elements'].iteritems():
+                    for element, value in config_info[module]['elements'].items():
                         if value is True:
                             line += " {}".format(element)
                 outfile.write(line + "\n")
