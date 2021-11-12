@@ -1,10 +1,11 @@
 #! /usr/bin/python3
-import re
-import os
-import json
+
+import requests
 import yaml
-import forecastio
-import datetime
+from datetime import datetime
+import json
+
+OWM_ENDPOINT = "https://api.openweathermap.org/data/2.5/onecall"
 
 
 def readConfiguration():
@@ -15,46 +16,68 @@ def readConfiguration():
     return config
 
 
-def readWeather(config):
+def get_icon_filename(icon, config):
+    if config['weather']['color_icons']:
+        return icon
+    else:
+        with open('Icons/icons.json', 'r') as icon_file:
+            icon_dict = json.load(icon_file)
+        icon_file = icon_dict[icon]
+        return icon_file
 
-    # connect to forecast.io
-    forecast = forecastio.load_forecast(config['weather']['key'], config['weather']['latitude'], config['weather']['longitude'], units=config['weather']['units'])
+
+def readWeather(config):
+    api_params = {
+        "appid": config['weather']['key'],
+        "lat": config['weather']['latitude'],
+        "lon": config['weather']['longitude'],
+        "units": config['weather']['units'],
+        "exclude": "hourly,minutely"
+    }
+    forecast = requests.get(url=OWM_ENDPOINT, params=api_params).json()
 
     # get the current weather
-    current = forecast.currently()
+    current = forecast['current']
     # get the details fo the current weather
     data = dict()
-    data['temperature'] = int(current.temperature)
-    data['summary'] = current.summary
-    data['icon'] = current.icon
-    data['feel'] = int(current.apparentTemperature)
-    data['wind'] = current.windSpeed
-    data['humidity'] = current.humidity
-    data['update_at'] = current.time
+    data['temperature'] = int(current['temp'])
+    data['summary'] = current['weather'][0]['description']
+    data['feel'] = int(current['feels_like'])
+    data['wind'] = current['wind_speed']
+    data['humidity'] = current['humidity']
+    # ts = current['dt'] - forecast['timezone_offset']
+    # data['update_at'] = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    data['update_at'] = datetime.now()
+    data['icon'] = get_icon_filename(current['weather'][0]['icon'], config)
 
     # now lets get the daily forecast
-    daily = forecast.daily()
-    data['forecast_summery'] = daily.summary.encode('utf-8')
+    daily = forecast['daily']
+    try:
+        data['forecast_summery'] = forecast['alerts'][0]['description']
+    except KeyError:
+        data['forecast_summery'] = daily[0]['weather'][0]['description'].title()
+
+
     # get day by day data
     day_index = 1 # with 1 being today
-    for day in daily.data:
-        data[str(day_index) + '_' + 'minTemp'] = day.temperatureMin
-        data[str(day_index) + '_' + 'minTempAt'] = datetime.datetime.fromtimestamp(int(day.temperatureMinTime)).strftime('%H:%M')
-        data[str(day_index) + '_' + 'maxTemp'] = day.temperatureMax
-        data[str(day_index) + '_' + 'maxTempAt'] = datetime.datetime.fromtimestamp(int(day.temperatureMaxTime)).strftime('%H:%M')
-        data[str(day_index) + '_' + 'icon'] = day.icon
-        data[str(day_index) + '_' + 'summary'] = day.summary
+    for day in daily:
+        data[str(day_index) + '_' + 'minTemp'] = day['temp']['min']
+        data[str(day_index) + '_' + 'minTempAt'] = "N/A"
+        data[str(day_index) + '_' + 'maxTemp'] = day['temp']['max']
+        data[str(day_index) + '_' + 'maxTempAt'] = "N/A"
+        data[str(day_index) + '_' + 'icon'] = get_icon_filename(day['weather'][0]['icon'], config)
+        data[str(day_index) + '_' + 'summary'] = day['weather'][0]['main']
         day_index = day_index + 1
 
     # get the units
     units = config['weather']['units']
     # put the unit specific details
-    if units == 'si':
+    if units == 'metric':
         data['temp_unit'] = 'C'
         data['speed_unit'] = 'm/s'
-    elif units == 'ca':
-        data['temp_unit'] = 'C'
-        data['speed_unit'] = 'km/h'
+    elif units == 'standard':
+        data['temp_unit'] = 'K'
+        data['speed_unit'] = 'm/s'
     else:
         data['temp_unit'] = 'F'
         data['speed_unit'] = 'mph'
