@@ -1,15 +1,28 @@
 weather:
     enabled: True
     key: # YOUR KEY HERE
-    latitude: 50.5668102
-    longitude: 4.7160152
-    units: ca
+    # get API key from https://openweathermap.org/api
+
+    latitude: 13.082680
+    longitude: 80.270721
+    # get them from https://www.latlong.net/
+
+    units: metric #standard / metric / imperial
+    # standard = Temperature in Kelvin and wind speed in meter/sec
+    # metric = Temperature in Celsius and wind speed in meter/sec
+    # imperial = Temperature in Fahrenheit and wind speed in miles/hour
+
+    color_icons: True
+
 quote:
     enabled: True
-    url: http://www.brainyquote.com/quotes_of_the_day.html
+    url: https://www.brainyquote.com/quote_of_the_day/
+    # changing the url requires changing code in Scripts/fact.py file.
 fact:
     enabled: True
-    url: http://facts.randomhistory.com/
+    url: https://www.factretriever.com/webmethod.aspx/getsliderfacts
+    # changing the url requires changing code in Scripts/fact.py file.
+
 system:
     enabled: True
     elements:

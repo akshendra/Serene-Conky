@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#! /usr/bin/python3
 # Used to load stuff the modules need before running
 # (reads the config file to find whats needed)
 
@@ -11,7 +11,7 @@ def prepConfiguration():
     # open the configuration file in read mode
     with open('config', 'w') as outfile, open('config.yml', 'r') as config_file:
         # now load the yaml
-        config_info = yaml.load(config_file)
+        config_info = yaml.safe_load(config_file)
         # fetch status
         for module in config_info:
             if config_info[module]['enabled'] is True:
@@ -21,7 +21,7 @@ def prepConfiguration():
                 if 'elements' in config_info[module]:
                     elements = config_info[module]['elements']
                     # check for needed elements
-                    for element, value in config_info[module]['elements'].iteritems():
+                    for element, value in config_info[module]['elements'].items():
                         if value is True:
                             line += " {}".format(element)
                 outfile.write(line + "\n")

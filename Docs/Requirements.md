@@ -5,43 +5,37 @@ This Conky theme requires python libraries of getting the data from the web, man
 ## pip
 We need a number of python libraries, first install pip
 ### On Ubuntu
-    sudo apt-get install python-pip
+    sudo apt-get install python3-pip
 ### On Fedora
-    sudo yum install python-pip
+    sudo yum install python3-pip
 If their is any problem consult their [documentation](https://pip.pypa.io/en/stable/installing.html)
 
 ## pyyaml
 This package is needed for parsing yaml files
 ### On Ubuntu
-    sudo apt-get install python-yaml
+    sudo apt-get install python3-yaml
 ### On Fedora
-    sudo yum install python-yaml
+    sudo yum install python3-yaml
 ### Using pip
     sudo pip install pyyaml
-
-## python-forecast.io
-The python wrapper for the forecast.io api
-    sudo pip install python-forecastio
 
 ## BeautiFul Soup
 For scrapping data out of html pages
 ### For Ubuntu
-    sudo apt-get install python-bs4
+    sudo apt-get install python3-bs4
 ### Using pip
-    sudo pip install beautifulsoup4
+    sudo pip install bs4
 
 ## lxml
 For parsing html
 ### For Ubuntu
-    sudo apt-get install python-lxml
+    sudo apt-get install python3-lxml
 ### Using pip
     sudo pip install lxml
 
 ## Fonts
 For displaying the correct fonts
-### For Ubuntu
-Get Google’s fonts using TypeCatcher 
-#### Install TypeCatcher
-    sudo apt-get update & sudo apt-get install typecatcher
-#### Use TypeCatcher to install the following:
-    'Text Me One', 'Roboto' & 'Poiret One'
+create a `.fonts` folder under `$HOME` directory.
+copy the 'Text Me One', 'Roboto' & 'Poiret One' fonts from [Fonts](../Fonts) to the newly created directory.
+
+Then run `sudo fc-cache -fv`
