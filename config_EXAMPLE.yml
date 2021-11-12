@@ -19,7 +19,9 @@ quote:
     url: http://www.brainyquote.com/quotes_of_the_day.html
 fact:
     enabled: True
-    url: http://facts.randomhistory.com/
+    url: https://www.factretriever.com/webmethod.aspx/getsliderfacts
+    # changing the url requires changing code in Scripts/fact.py file.
+
 system:
     enabled: True
     elements:
