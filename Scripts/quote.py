@@ -12,7 +12,7 @@ def readConfiguration():
     # open the configuration file in read mode
     config_file = open('config.yml', 'r')
     # now load the yaml
-    config = yaml.load(config_file)
+    config = yaml.safe_load(config_file)
     return config
 
 

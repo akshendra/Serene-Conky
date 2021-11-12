@@ -11,7 +11,7 @@ def prepConfiguration():
     # open the configuration file in read mode
     with open('config', 'w') as outfile, open('config.yml', 'r') as config_file:
         # now load the yaml
-        config_info = yaml.load(config_file)
+        config_info = yaml.safe_load(config_file)
         # fetch status
         for module in config_info:
             if config_info[module]['enabled'] is True:
