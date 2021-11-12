@@ -1,15 +1,12 @@
 #! /usr/bin/python3
 
 from bs4 import BeautifulSoup
-from lxml import html
 import requests
-import os
-import datetime
 import yaml
 
 
 def readConfiguration():
-    # open the configuration file in read mode
+    # open the configuration file in read mode    
     config_file = open('config.yml', 'r')
     # now load the yaml
     config = yaml.safe_load(config_file)
@@ -24,12 +21,11 @@ def readQuote(config):
 
     # lets find the quotes
     data = dict()
-    quotes = soup(class_=["b-qt"])
-    authors = soup(class_=["bq-aut"])
+    quotes = soup.findAll(class_=["b-qt"])
+    authors = soup.findAll(class_=["bq-aut"])
     for i in range(0, 5):
-        data[str(i+1) + '_quote'] = unicode(quotes[i].string)
-        data[str(i+1) + '_author'] = unicode(authors[i].string)
-
+        data[str(i+1) + '_quote'] = quotes[i].text.strip()
+        data[str(i+1) + '_author'] = authors[i].text    
     return data
 
 

@@ -16,7 +16,8 @@ weather:
 
 quote:
     enabled: True
-    url: http://www.brainyquote.com/quotes_of_the_day.html
+    url: https://www.brainyquote.com/quote_of_the_day/
+    # changing the url requires changing code in Scripts/fact.py file.
 fact:
     enabled: True
     url: https://www.factretriever.com/webmethod.aspx/getsliderfacts
